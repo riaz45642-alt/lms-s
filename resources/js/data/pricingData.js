@@ -1,0 +1,60 @@
+export const pricingPlans = [
+  {
+    key: 'parent',
+    em: '👨‍👩‍👧',
+    title: 'Parent',
+    tagline: 'For families learning at home',
+    monthly: 6.99,
+    annual: 4.49,
+    highlight: false,
+    features: [
+      'Unlimited worksheet downloads',
+      'Full workbook library access',
+      'Add up to 6 children',
+      'Progress reports for each child',
+      'Interactive courses included',
+      'Cancel anytime',
+    ],
+  },
+  {
+    key: 'educator',
+    em: '👩‍🏫',
+    title: 'Educator',
+    tagline: 'For teachers and tutors',
+    monthly: 11.99,
+    annual: 8.49,
+    highlight: true,
+    features: [
+      'Everything in Parent, plus:',
+      'Add up to 50 students',
+      'Class-wide assignment tools',
+      'Bulk worksheet printing',
+      'Answer keys for every resource',
+      'Priority email support',
+    ],
+  },
+  {
+    key: 'school',
+    em: '🏫',
+    title: 'School',
+    tagline: 'For whole-school access',
+    monthly: 29.99,
+    annual: 22.49,
+    highlight: false,
+    features: [
+      'Everything in Educator, plus:',
+      'Unlimited teacher seats',
+      'School-wide progress dashboard',
+      'CSV student import',
+      'Dedicated account manager',
+      'Custom onboarding session',
+    ],
+  },
+]
+
+export const pricingFaqs = [
+  { q: 'Can I switch between monthly and annual billing?', a: 'Yes — you can switch your billing cycle at any time from your account settings, and the change applies from your next renewal date.' },
+  { q: 'Is there a free plan?', a: 'Yes. Every visitor can access our free worksheets, workbooks and courses without an account. A paid plan unlocks the full premium library and progress tracking.' },
+  { q: 'Do you offer refunds?', a: 'We offer a 14-day money-back guarantee on all new subscriptions if you\'re not satisfied.' },
+  { q: 'Can schools pay by invoice?', a: 'Yes, School plans can be billed by invoice — contact our team to arrange this.' },
+]
