@@ -78,7 +78,7 @@
 .field input:focus{
   border-color:var(--blue);
   background:#fff;
-  box-shadow:0 0 0 3px rgba(31,134,224,.12);
+  box-shadow:0 0 0 3px rgba(108,76,241,.12);
 }
 
 .pass-wrap{position:relative;display:flex;align-items:center}

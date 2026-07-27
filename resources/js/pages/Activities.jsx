@@ -76,7 +76,7 @@ export default function Activities() {
               <div className="grid-cards">
                 {pageItems.map((a) => (
                   <div className="wcard" key={a.id}>
-                    <div className="wthumb" style={{ background: a.badge === 'free' ? '#eef6fe' : '#fff7e6', cursor: 'pointer' }} onClick={() => navigate(`/activities/${a.id}`)}>
+                    <div className="wthumb" style={{ background: a.badge === 'free' ? '#F1ECFE' : '#FFE9D8', cursor: 'pointer' }} onClick={() => navigate(`/activities/${a.id}`)}>
                       <span className="wbrand">EduSphere</span>
                       <span className={`badge ${a.badge === 'free' ? 'free' : 'prem'}`}>{a.badge === 'free' ? 'Free' : 'Premium'}</span>
                       <span style={{ fontSize: '42px' }}>{a.em}</span>

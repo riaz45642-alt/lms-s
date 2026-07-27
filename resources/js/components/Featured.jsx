@@ -46,7 +46,7 @@ export default function Featured() {
           <div className="cards">
             {list.map(([t, b]) => (
               <div className="wcard" key={t}>
-                <div className="wthumb" style={{ background: b === 'free' ? '#eef6fe' : '#fff7e6' }}>
+                <div className="wthumb" style={{ background: b === 'free' ? '#F1ECFE' : '#FFE9D8' }}>
                   <span className="wbrand">EduSphere</span>
                   <span className={`badge ${b === 'free' ? 'free' : 'prem'}`}>{b === 'free' ? 'Free' : 'Premium'}</span>
                   <span style={{ fontSize: '42px' }}>{emoji}</span>

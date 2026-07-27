@@ -1,18 +1,15 @@
 import { useMemo, useState } from 'react'
-import { useRouter } from '../router/Router'
 import { faqs } from '../data/faqData'
 import { PageHero } from '../components/ui/UI'
 import './pages.css'
 
 const CATEGORIES = [
   { key: 'account', em: '👤', title: 'Account & billing' },
-  { key: 'resources', em: '📄', title: 'Worksheets & workbooks' },
-  { key: 'courses', em: '🎮', title: 'Courses & activities' },
+  { key: 'resources', em: '📄', title: 'Worksheets & activities' },
   { key: 'technical', em: '🛠️', title: 'Technical support' },
 ]
 
 export default function Help() {
-  const { navigate } = useRouter()
   const [query, setQuery] = useState('')
   const [openFaq, setOpenFaq] = useState(0)
 
@@ -64,7 +61,7 @@ export default function Help() {
               <h3>Can't find what you're looking for?</h3>
               <p>Our support team typically replies within one business day.</p>
             </div>
-            <button className="btn btn-gold" onClick={() => navigate('/contact')}>Contact support</button>
+            <a className="btn btn-gold" href="mailto:support@edusphere.co">Contact support</a>
           </div>
         </div>
       </div>

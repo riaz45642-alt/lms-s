@@ -41,8 +41,8 @@ export default function ActivityDetails({ activityId }) {
           <div className="detail-preview">
             <div className="preview-surface">{activity.em}</div>
             <div className="preview-actions">
-              <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>Play now</button>
-              <button className="btn btn-ghost">Preview</button>
+              <a className="btn btn-primary" href="#how-it-works">Play now</a>
+              <a className="btn btn-ghost" href="#how-it-works">Preview</a>
               <FavoriteButton active={favorites.includes(activity.title)} onClick={() => toggleFavorite(activity.title)} />
             </div>
           </div>
@@ -58,13 +58,13 @@ export default function ActivityDetails({ activityId }) {
             </div>
             <p className="desc">{activity.summary}</p>
             <div className="detail-cta">
-              <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>Play now</button>
+              <a className="btn btn-primary" href="#how-it-works">Play now</a>
               <button className="btn btn-ghost" onClick={() => navigate('/activities')}>Back to activities</button>
             </div>
           </div>
         </div>
 
-        <div className="sec-head related-heading"><h2>How it works</h2></div>
+        <div className="sec-head related-heading" id="how-it-works"><h2>How it works</h2></div>
         <ul className="chapter-list numbered">
           {activity.steps.map((s, i) => (
             <li key={s}><span><span className="num">{String(i + 1).padStart(2, '0')}</span>{s}</span></li>
@@ -79,7 +79,7 @@ export default function ActivityDetails({ activityId }) {
             <div className="grid-cards">
               {related.map((a) => (
                 <div className="wcard" key={a.id} onClick={() => navigate(`/activities/${a.id}`)} style={{ cursor: 'pointer' }}>
-                  <div className="wthumb" style={{ background: a.badge === 'free' ? '#eef6fe' : '#fff7e6' }}>
+                  <div className="wthumb" style={{ background: a.badge === 'free' ? '#F1ECFE' : '#FFE9D8' }}>
                     <span className="wbrand">EduSphere</span>
                     <span className={`badge ${a.badge === 'free' ? 'free' : 'prem'}`}>{a.badge === 'free' ? 'Free' : 'Premium'}</span>
                     <span style={{ fontSize: '42px' }}>{a.em}</span>

@@ -85,7 +85,7 @@ export default function Worksheets() {
               <div className="grid-cards">
                 {pageItems.map((w) => (
                   <div className="wcard" key={w.id}>
-                    <div className="wthumb" style={{ background: w.badge === 'free' ? '#eef6fe' : '#fff7e6', cursor: 'pointer' }} onClick={() => navigate(`/worksheets/${w.id}`)}>
+                    <div className="wthumb" style={{ background: w.badge === 'free' ? '#F1ECFE' : '#FFE9D8', cursor: 'pointer' }} onClick={() => navigate(`/worksheets/${w.id}`)}>
                       <span className="wbrand">EduSphere</span>
                       <span className={`badge ${w.badge === 'free' ? 'free' : 'prem'}`}>{w.badge === 'free' ? 'Free' : 'Premium'}</span>
                       <span style={{ fontSize: '42px' }}>{w.em}</span>

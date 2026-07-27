@@ -1,6 +1,6 @@
-.testi{padding:56px 0;background:var(--sky-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.testi{padding:60px 0;background:var(--sky-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .tcarousel{position:relative;max-width:680px;margin:30px auto 0;min-height:200px}
-.tslide{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 32px;box-shadow:var(--shadow);text-align:center;display:none}
+.tslide{background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:32px 34px;box-shadow:var(--shadow);text-align:center;display:none}
 .tslide.active{display:block;animation:fade .4s ease}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .tslide .stars{color:var(--gold);font-size:18px;letter-spacing:2px}
@@ -10,5 +10,5 @@
 .tperson b{font-family:var(--font-d);color:var(--navy);display:block;font-size:14px}
 .tperson span{font-size:12px;color:var(--muted)}
 .tdots{display:flex;gap:8px;justify-content:center;margin-top:20px}
-.tdot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;cursor:pointer}
-.tdot.active{background:var(--blue)}
+.tdot{width:10px;height:10px;border-radius:50%;background:var(--line);border:none;cursor:pointer;transition:.15s}
+.tdot.active{background:var(--blue);width:22px;border-radius:6px}

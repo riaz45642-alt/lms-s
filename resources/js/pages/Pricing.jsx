@@ -75,7 +75,7 @@ export default function Pricing() {
               <h3>Still not sure which plan is right?</h3>
               <p>Our team can help you pick the best fit for your family, classroom or school.</p>
             </div>
-            <button className="btn btn-gold" onClick={() => navigate('/contact')}>Talk to us</button>
+            <button className="btn btn-gold" onClick={() => navigate('/help')}>Talk to us</button>
           </div>
         </div>
       </div>

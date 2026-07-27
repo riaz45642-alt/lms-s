@@ -1,20 +1,11 @@
 import { createContext, useContext, useMemo, useState, useCallback } from 'react'
-import { notificationsSeed } from '../data/appData'
 
 const AppCtx = createContext(null)
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState({
-    name: 'Amelia Carter',
-    email: 'amelia.carter@example.com',
-    role: 'student',
-    avatar: '👩‍🎓',
-    joined: 'Sept 2024',
-  })
   const [favorites, setFavorites] = useState(['Adding 2 Worksheet', 'Parts of a Plant'])
   const [recentlyViewed, setRecentlyViewed] = useState(['Letter Tracing A–Z', 'Continents & Oceans'])
   const [recentlyDownloaded, setRecentlyDownloaded] = useState(['Sight Words Practice'])
-  const [notifications, setNotifications] = useState(notificationsSeed)
 
   const toggleFavorite = useCallback((title) => {
     setFavorites((f) => (f.includes(title) ? f.filter((t) => t !== title) : [title, ...f]))
@@ -28,25 +19,11 @@ export function AppProvider({ children }) {
     setRecentlyDownloaded((r) => [title, ...r.filter((t) => t !== title)].slice(0, 8))
   }, [])
 
-  const markAllRead = useCallback(() => {
-    setNotifications((list) => list.map((n) => ({ ...n, read: true })))
-  }, [])
-
-  const markRead = useCallback((id) => {
-    setNotifications((list) => list.map((n) => (n.id === id ? { ...n, read: true } : n)))
-  }, [])
-
-  const setRole = useCallback((role) => setUser((u) => ({ ...u, role })), [])
-  const updateUser = useCallback((patch) => setUser((u) => ({ ...u, ...patch })), [])
-
   const value = useMemo(() => ({
-    user, setRole, updateUser,
     favorites, toggleFavorite,
     recentlyViewed, addRecentlyViewed,
     recentlyDownloaded, addRecentlyDownloaded,
-    notifications, markAllRead, markRead,
-    unreadCount: notifications.filter((n) => !n.read).length,
-  }), [user, favorites, recentlyViewed, recentlyDownloaded, notifications, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded, markAllRead, markRead, setRole, updateUser])
+  }), [favorites, recentlyViewed, recentlyDownloaded, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded])
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>
 }

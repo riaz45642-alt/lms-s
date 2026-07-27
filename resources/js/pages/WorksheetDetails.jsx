@@ -77,7 +77,7 @@ export default function WorksheetDetails({ worksheetId }) {
             <div className="grid-cards">
               {related.map((w) => (
                 <div className="wcard" key={w.id} onClick={() => navigate(`/worksheets/${w.id}`)} style={{ cursor: 'pointer' }}>
-                  <div className="wthumb" style={{ background: w.badge === 'free' ? '#eef6fe' : '#fff7e6' }}>
+                  <div className="wthumb" style={{ background: w.badge === 'free' ? '#F1ECFE' : '#FFE9D8' }}>
                     <span className="wbrand">EduSphere</span>
                     <span className={`badge ${w.badge === 'free' ? 'free' : 'prem'}`}>{w.badge === 'free' ? 'Free' : 'Premium'}</span>
                     <span style={{ fontSize: '42px' }}>{w.em}</span>
