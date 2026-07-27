@@ -1,34 +1,104 @@
-version: "3.9"
+name: lms
 
 services:
+
   app:
-    build: .
+    build:
+      context: .
+      target: php-runtime
     container_name: lms-app
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/var/www
-    depends_on:
-      - mysql
+    restart: unless-stopped
+
     environment:
+      APP_NAME: Laravel
+      APP_ENV: local
+      APP_KEY: base64:IZIhHen6yt2pG2NcNNVyrasHXW+lguxj7UfFyZXddG4=
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
       DB_DATABASE: lms
-      DB_USERNAME: root
-      DB_PASSWORD: root
+      DB_USERNAME: lms
+      DB_PASSWORD: lms123
+
+      CACHE_DRIVER: file
+      SESSION_DRIVER: file
+      QUEUE_CONNECTION: sync
+      RUN_MIGRATIONS: "true"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    volumes:
+      - app_storage:/var/www/storage
+
+    networks:
+      - lms
+
+
+  nginx:
+    build:
+      context: .
+      target: nginx
+
+    container_name: lms-nginx
+    restart: unless-stopped
+
+    ports:
+      - "8000:80"
+
+    depends_on:
+      - app
+
+    volumes:
+      - app_storage:/var/www/storage:ro
+
+    networks:
+      - lms
+
 
   mysql:
     image: mysql:8.0
+
     container_name: lms-mysql
-    restart: always
+
+    restart: unless-stopped
+
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: lms
-    ports:
-      - "3306:3306"
+      MYSQL_USER: lms
+      MYSQL_PASSWORD: lms123
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -proot123 --silent"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
     volumes:
       - mysql_data:/var/lib/mysql
 
+    networks:
+      - lms
+
+networks:
+  lms:
+    driver: bridge
+
 volumes:
+  app_storage:
   mysql_data:
+  
