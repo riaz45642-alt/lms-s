@@ -46,31 +46,30 @@ export default function Worksheets() {
       <PageHero eyebrow="Resource library" title="Worksheets" subtitle="Search, filter and download curriculum-aligned worksheets for every subject and grade." />
       <div className="page-section tight">
         <div className="wrap">
-          <div className="filters-bar">
+          <div className="filters-toolbar">
             <div className="search-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /></svg>
               <input placeholder="Search worksheets…" value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
-          </div>
-          <div className="filters-bar">
-            <div className="filter-group">
-              {['All', 'Free', 'Premium'].map((c) => (
-                <button key={c} className={`filter-chip${category === c ? ' active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
-              ))}
-            </div>
-          </div>
-          <div className="filters-bar">
-            <div className="filter-group">
-              {['All', ...subjects].map((s) => (
-                <button key={s} className={`filter-chip${subject === s ? ' active' : ''}`} onClick={() => setSubject(s)}>{s}</button>
-              ))}
-            </div>
-          </div>
-          <div className="filters-bar">
-            <div className="filter-group">
-              {['All', ...years].map((y) => (
-                <button key={y} className={`filter-chip${year === y ? ' active' : ''}`} onClick={() => setYear(y)}>{y}</button>
-              ))}
+            <div className="toolbar-divider" />
+            <div className="toolbar-selects">
+              <div className={`select-pill${category !== 'All' ? ' is-active' : ''}`}>
+                <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {['All', 'Free', 'Premium'].map((c) => <option key={c} value={c}>{c === 'All' ? 'All access' : c}</option>)}
+                </select>
+              </div>
+              <div className={`select-pill${subject !== 'All' ? ' is-active' : ''}`}>
+                <select value={subject} onChange={(e) => setSubject(e.target.value)}>
+                  <option value="All">All subjects</option>
+                  {subjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div className={`select-pill${year !== 'All' ? ' is-active' : ''}`}>
+                <select value={year} onChange={(e) => setYear(e.target.value)}>
+                  <option value="All">All years</option>
+                  {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
             </div>
           </div>
 

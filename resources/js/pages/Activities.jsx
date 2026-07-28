@@ -44,24 +44,24 @@ export default function Activities() {
       <PageHero eyebrow="Quick & playful" title="Activities" subtitle="Short interactive games and puzzles that turn practice time into play time — perfect for a quick brain break." />
       <div className="page-section tight">
         <div className="wrap">
-          <div className="filters-bar">
+          <div className="filters-toolbar">
             <div className="search-lg">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.5" y2="16.5" /></svg>
               <input placeholder="Search activities…" value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
-          </div>
-          <div className="filters-bar">
-            <div className="filter-group">
-              {['All', 'Free', 'Premium'].map((c) => (
-                <button key={c} className={`filter-chip${category === c ? ' active' : ''}`} onClick={() => setCategory(c)}>{c}</button>
-              ))}
-            </div>
-          </div>
-          <div className="filters-bar">
-            <div className="filter-group">
-              {['All', ...activitySubjects].map((s) => (
-                <button key={s} className={`filter-chip${subject === s ? ' active' : ''}`} onClick={() => setSubject(s)}>{s}</button>
-              ))}
+            <div className="toolbar-divider" />
+            <div className="toolbar-selects">
+              <div className={`select-pill${category !== 'All' ? ' is-active' : ''}`}>
+                <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {['All', 'Free', 'Premium'].map((c) => <option key={c} value={c}>{c === 'All' ? 'All access' : c}</option>)}
+                </select>
+              </div>
+              <div className={`select-pill${subject !== 'All' ? ' is-active' : ''}`}>
+                <select value={subject} onChange={(e) => setSubject(e.target.value)}>
+                  <option value="All">All subjects</option>
+                  {activitySubjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
             </div>
           </div>
 
