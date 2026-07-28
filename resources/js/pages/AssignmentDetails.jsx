@@ -45,7 +45,7 @@ export default function AssignmentDetails({ assignmentId }) {
 
             <h3 style={{ fontSize: 16, margin: '24px 0 12px' }}>Your submission</h3>
             {uploaded ? (
-              <div className="save-toast">✓ Assignment submitted — awaiting grading</div>
+              <div className="save-toast">✓ Assignment submitted — awaiting manual teacher review</div>
             ) : assignment.marks !== null ? (
               <div className="dash-card">
                 <p style={{ fontWeight: 700 }}>Marks: {assignment.marks}/{assignment.total}</p>

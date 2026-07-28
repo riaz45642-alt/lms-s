@@ -31,8 +31,9 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     attempts=0
     until php -r '
         try {
+            $driver = getenv("DB_CONNECTION") ?: "pgsql";
             new PDO(
-                "mysql:host=" . getenv("DB_HOST") . ";port=" . getenv("DB_PORT") . ";dbname=" . getenv("DB_DATABASE"),
+                $driver . ":host=" . getenv("DB_HOST") . ";port=" . getenv("DB_PORT") . ";dbname=" . getenv("DB_DATABASE"),
                 getenv("DB_USERNAME"),
                 getenv("DB_PASSWORD")
             );

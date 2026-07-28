@@ -7,7 +7,7 @@ export const assignmentsData = [
   { id: 'as3', title: 'Plant Life Cycle Diagram', subject: 'Science', due: '16 July 2026', status: 'pending', marks: null, total: 15, instructions: 'Label the diagram with the correct stages of a plant life cycle and add a short description for each.', attachments: ['plant-diagram.png'] },
   { id: 'as4', title: 'Continents & Oceans Map Quiz', subject: 'Geography', due: '5 July 2026', status: 'late', marks: 12, total: 20, instructions: 'Label all 7 continents and 5 oceans on the provided outline map.', attachments: ['world-outline-map.pdf'] },
   { id: 'as5', title: 'Ancient Egypt Timeline', subject: 'History', due: '20 July 2026', status: 'pending', marks: null, total: 25, instructions: 'Create a timeline of 6 key events in Ancient Egyptian history with dates and short notes.', attachments: ['timeline-template.pdf'] },
-  { id: 'as6', title: 'Times Tables Speed Test', subject: 'Maths', due: '2 July 2026', status: 'graded', marks: 20, total: 20, instructions: 'Complete the 2, 5 and 10 times tables within the 5 minute timer.', attachments: [] },
+  { id: 'as6', title: 'Times Tables Speed Test', subject: 'Maths', due: '2 July 2026', status: 'checked', marks: 20, total: 20, instructions: 'Complete the 2, 5 and 10 times tables within the 5 minute timer.', attachments: [] },
 ]
 
 // ---------- Certificates ----------

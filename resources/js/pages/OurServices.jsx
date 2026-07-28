@@ -8,7 +8,7 @@ const SERVICES = [
   { em: '🎮', title: 'Interactive Courses', desc: 'Self-paced video courses with quizzes and instant feedback for a more guided learning path.', to: '/courses' },
   { em: '🧩', title: 'Activities', desc: 'Short, playful games and puzzles that turn revision time into play time.', to: '/activities' },
   { em: '🗓️', title: 'Classroom Events', desc: 'Themed events and seasonal bundles that keep learning fresh and topical all year round.', to: '/events' },
-  { em: '📊', title: 'Progress Reports', desc: 'Auto-scoring and dashboards so parents and teachers can track performance at a glance.', to: '/dashboard' },
+  { em: '📊', title: 'Progress Reports', desc: 'Teacher-checked marks, remarks and dashboards help families track performance at a glance.', to: '/dashboard' },
 ]
 
 const AUDIENCES = [

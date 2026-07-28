@@ -1,96 +1,67 @@
 name: lms
 
 services:
-
   app:
     build:
       context: .
       target: php-runtime
-    container_name: lms-app
     restart: unless-stopped
-
     environment:
-      APP_NAME: Laravel
-      APP_ENV: local
-      APP_KEY: base64:IZIhHen6yt2pG2NcNNVyrasHXW+lguxj7UfFyZXddG4=
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8000
-
-      DB_CONNECTION: mysql
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_DATABASE: lms
-      DB_USERNAME: lms
-      DB_PASSWORD: lms123
-
+      APP_NAME: ${APP_NAME:-EduSphere}
+      APP_ENV: ${APP_ENV:-production}
+      APP_KEY: ${APP_KEY:-}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_DATABASE: ${DB_DATABASE:-lms}
+      DB_USERNAME: ${DB_USERNAME:-lms}
+      DB_PASSWORD: ${DB_PASSWORD:-lms_password}
       CACHE_DRIVER: file
       SESSION_DRIVER: file
       QUEUE_CONNECTION: sync
-      RUN_MIGRATIONS: "true"
-
+      FILESYSTEM_DISK: local
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
-
     volumes:
       - app_storage:/var/www/storage
-
     networks:
       - lms
-
 
   nginx:
     build:
       context: .
       target: nginx
-
-    container_name: lms-nginx
     restart: unless-stopped
-
     ports:
-      - "8000:80"
-
+      - "${APP_PORT:-8000}:80"
     depends_on:
       - app
-
     volumes:
       - app_storage:/var/www/storage:ro
-
     networks:
       - lms
 
-
-  mysql:
-    image: mysql:8.0
-
-    container_name: lms-mysql
-
+  postgres:
+    image: postgres:16-alpine
     restart: unless-stopped
-
     environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: lms
-      MYSQL_USER: lms
-      MYSQL_PASSWORD: lms123
-
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-
+      POSTGRES_DB: ${DB_DATABASE:-lms}
+      POSTGRES_USER: ${DB_USERNAME:-lms}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-lms_password}
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "mysqladmin ping -h localhost -uroot -proot123 --silent"
-        ]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 20
-      start_period: 20s
-
+      start_period: 10s
     volumes:
-      - mysql_data:/var/lib/mysql
-
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - lms
 
@@ -100,5 +71,4 @@ networks:
 
 volumes:
   app_storage:
-  mysql_data:
-  
+  postgres_data:

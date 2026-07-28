@@ -5,7 +5,7 @@ import { PageHero, EmptyState, TableSkeleton, StatusChip } from '../components/u
 import './pages.css'
 import './lms.css'
 
-const FILTERS = ['All', 'pending', 'submitted', 'graded', 'late']
+const FILTERS = ['All', 'pending', 'submitted', 'checked', 'late']
 
 export default function Assignments() {
   const { navigate } = useRouter()

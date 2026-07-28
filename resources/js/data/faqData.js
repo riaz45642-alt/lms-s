@@ -4,6 +4,6 @@ export const faqs = [
   { q: "What subjects do EduSphere worksheets cover?", a: "Maths, English, Science, Geography and History — from Early Years through to Year 6, all aligned to the national curriculum." },
   { q: "How do I cancel my subscription?", a: "You can cancel anytime from your account settings. Your access stays active until the end of your current billing period." },
   { q: "Is EduSphere suitable for all primary school years?", a: "Yes. Worksheets are organised by year group from Early Years to Year 6, so there's suitable material for every primary learner." },
-  { q: "Can I track my child's progress and performance?", a: "Yes. Auto-scoring and progress reports let you see how your child is performing across each subject and worksheet." },
+  { q: "Can I track my child's progress and performance?", a: "Yes. Teachers manually review completed worksheets, provide marks and remarks, and generate progress reports for each learner." },
   { q: "I forgot my username/password. How can I recover it?", a: "Use the \"Forgot password\" link on the login page. We'll email you a secure reset link to get back in." }
 ]

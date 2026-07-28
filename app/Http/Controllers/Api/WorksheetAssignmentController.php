@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreAssignmentRequest;
+use App\Models\StudentProfile;
+use App\Models\Worksheet;
+use App\Models\WorksheetAssignment;
+use Illuminate\Http\Request;
+
+class WorksheetAssignmentController extends Controller
+{
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $query = WorksheetAssignment::with([
+            'worksheet.teacher.user',
+            'student.user',
+            'assigner',
+            'submission.review.report',
+        ]);
+
+        if ($user->hasRole('student')) {
+            $query->where('student_id', $user->studentProfile?->id);
+        } elseif ($user->hasRole('parent')) {
+            $query->whereIn('student_id', $user->parentProfile?->students()->pluck('student_profiles.id') ?? []);
+        } elseif ($user->hasRole('teacher')) {
+            $query->whereHas('worksheet', fn ($q) => $q->where('teacher_id', $user->teacherProfile?->id));
+        }
+
+        return $query
+            ->when($request->string('status')->toString(), fn ($q, $status) => $q->where('status', $status))
+            ->latest('assigned_at')
+            ->paginate(20);
+    }
+
+    public function store(StoreAssignmentRequest $request)
+    {
+        $user = $request->user();
+        $student = StudentProfile::findOrFail($request->integer('student_id'));
+        $worksheet = Worksheet::findOrFail($request->integer('worksheet_id'));
+
+        if ($user->hasRole('parent')) {
+            abort_unless($user->parentProfile?->students()->whereKey($student->id)->exists(), 403, 'This student is not linked to your account.');
+            abort_unless($worksheet->is_published, 422, 'Parents can assign only published worksheets.');
+        } elseif ($user->hasRole('teacher')) {
+            abort_unless($worksheet->teacher_id === $user->teacherProfile?->id, 403, 'Teachers can assign only their own worksheets.');
+            abort_unless($user->teacherProfile?->students()->whereKey($student->id)->exists(), 403, 'This student is not linked to your account.');
+        }
+
+        $assignment = WorksheetAssignment::create([
+            ...$request->validated(),
+            'assigned_by' => $user->id,
+            'assigned_at' => now(),
+            'status' => 'assigned',
+        ]);
+
+        return response()->json($assignment->load('worksheet', 'student.user', 'assigner'), 201);
+    }
+
+    public function show(Request $request, WorksheetAssignment $worksheetAssignment)
+    {
+        $this->authorizeAccess($request, $worksheetAssignment);
+
+        return $worksheetAssignment->load('worksheet.teacher.user', 'student.user', 'assigner', 'submission.review.report');
+    }
+
+    private function authorizeAccess(Request $request, WorksheetAssignment $assignment): void
+    {
+        $user = $request->user();
+        $allowed = $user->hasRole('admin')
+            || ($user->hasRole('student') && $assignment->student_id === $user->studentProfile?->id)
+            || ($user->hasRole('parent') && $user->parentProfile?->students()->whereKey($assignment->student_id)->exists())
+            || ($user->hasRole('teacher') && $assignment->worksheet->teacher_id === $user->teacherProfile?->id);
+
+        abort_unless($allowed, 403);
+    }
+}

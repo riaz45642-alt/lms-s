@@ -7,8 +7,6 @@
 .vscode
 .agents
 .codex
-Dockerfile*
-docker-compose*.yml
 node_modules
 vendor
 public/build
@@ -20,4 +18,3 @@ storage/framework/views/*
 npm-debug.log*
 yarn-error.log*
 README.md
-tests
