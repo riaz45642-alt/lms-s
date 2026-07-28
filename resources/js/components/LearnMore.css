@@ -1,12 +1,41 @@
-.learn{padding:60px 0;background:var(--sky-soft);border-top:1px solid var(--line)}
-.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:28px}
-.lcard{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;gap:16px;box-shadow:var(--shadow-sm);transition:.2s}
-.lcard:hover{box-shadow:var(--shadow);transform:translateY(-4px)}
-.lcard .ic{width:50px;height:50px;border-radius:14px;flex:none;display:grid;place-items:center;background:var(--sky);font-size:22px}
-.lcard h4{font-size:16px}
-.lcard p{color:var(--muted);font-size:14px;margin:4px 0 12px}
-.lcard .lnk{font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--blue)}
+.learn{padding:60px 0}
+.lrail{
+  margin-top:30px;
+  border:1px solid var(--line);
+  border-radius:var(--radius-lg);
+  background:#fff;
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.lrow{
+  position:relative;
+  display:grid;
+  grid-template-columns:34px 50px 1fr auto;
+  align-items:center;
+  gap:18px;
+  padding:20px 26px;
+  border-top:1px solid var(--line);
+  transition:background .18s ease,padding-left .18s ease;
+}
+.lrow:first-child{border-top:none}
+.lrow::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--accent);transform:scaleY(0);transform-origin:center;
+  transition:transform .25s ease;
+}
+.lrow:hover{background:var(--sky-soft);padding-left:32px}
+.lrow:hover::before{transform:scaleY(1)}
+.lrow-num{font-family:var(--font-d);font-weight:800;font-size:12px;color:var(--muted)}
+.lrow-ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:22px;transition:transform .25s ease}
+.lrow:hover .lrow-ic{transform:scale(1.08) rotate(-4deg)}
+.lrow-body{display:flex;flex-direction:column;gap:3px;min-width:0}
+.lrow-body b{font-family:var(--font-d);font-size:15.5px;color:var(--navy);font-weight:700}
+.lrow-body span{color:var(--muted);font-size:13.5px}
+.lrow-cta{font-family:var(--font-d);font-weight:700;font-size:13px;color:var(--accent);white-space:nowrap;display:flex;align-items:center;gap:4px}
+.lrow-cta i{font-style:normal;display:inline-block;transition:transform .2s ease}
+.lrow:hover .lrow-cta i{transform:translateX(4px)}
 
-@media(max-width:980px){
-  .lgrid{grid-template-columns:1fr}
+@media(max-width:700px){
+  .lrow{grid-template-columns:26px 42px 1fr;row-gap:8px;padding:18px}
+  .lrow-cta{grid-column:2 / 4;justify-content:flex-start;padding-left:0}
 }

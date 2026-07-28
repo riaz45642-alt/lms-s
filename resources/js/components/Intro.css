@@ -1,3 +1,45 @@
-.intro{text-align:center;padding:36px 0 54px}
-.intro h2{font-size:32px;font-weight:800;max-width:680px;margin:0 auto}
-.intro p{color:var(--muted);max-width:560px;margin:14px auto 24px}
+.intro{padding:50px 0 60px}
+.intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+.intro-copy h2{font-size:32px;font-weight:800;margin-top:12px}
+.intro-copy p{color:var(--muted);margin:16px 0 26px;max-width:480px;font-size:15.5px}
+
+/* Signature: a small fanned stack of worksheet pages */
+.ws-stack{position:relative;height:260px;display:flex;align-items:center;justify-content:center}
+.ws-page{
+  position:absolute;
+  width:200px;
+  height:230px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow-sm);
+  padding:22px 20px;
+  transition:transform .3s cubic-bezier(.2,.7,.2,1);
+}
+.ws-line{display:block;height:8px;border-radius:5px;background:var(--sky);margin-bottom:12px}
+.ws-back{transform:rotate(-14deg) translate(-64px,6px);background:var(--sky-soft)}
+.ws-mid{transform:rotate(-4deg) translate(-18px,-4px);background:#fff}
+.ws-front{transform:rotate(7deg) translate(38px,10px);z-index:2}
+.ws-front .ws-line{background:var(--line)}
+.ws-front .ws-line.short{background:var(--gold-soft)}
+.ws-badge{
+  position:absolute;top:-12px;right:-12px;width:34px;height:34px;border-radius:50%;
+  background:var(--gold);color:#fff;display:grid;place-items:center;font-weight:800;
+  box-shadow:0 6px 16px rgba(255,138,61,.4);
+  animation:popIn .5s cubic-bezier(.2,.7,.2,1) .5s both;
+}
+.reveal.in .ws-back{animation:floatY 6s ease-in-out infinite;animation-delay:.2s}
+.reveal.in .ws-mid{animation:floatY 6.5s ease-in-out infinite;animation-delay:.5s}
+.reveal.in .ws-front{animation:floatY 5.5s ease-in-out infinite;animation-delay:.1s}
+.ws-stack:hover .ws-back{transform:rotate(-20deg) translate(-78px,0)}
+.ws-stack:hover .ws-mid{transform:rotate(-6deg) translate(-24px,-10px)}
+.ws-stack:hover .ws-front{transform:rotate(10deg) translate(46px,4px)}
+
+@media(max-width:900px){
+  .intro-grid{grid-template-columns:1fr;text-align:center;gap:38px}
+  .intro-copy p{margin-left:auto;margin-right:auto}
+  .ws-stack{height:220px}
+}
+@media(max-width:480px){
+  .ws-page{width:160px;height:190px}
+}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { faqs } from '../data/faqData'
 import { PageHero } from '../components/ui/UI'
+import Reveal from '../components/Reveal'
 import './pages.css'
 
 const CATEGORIES = [
@@ -28,20 +29,20 @@ export default function Help() {
       </PageHero>
       <div className="page-section tight">
         <div className="wrap">
-          <div className="help-cats">
+          <Reveal className="help-cats" stagger>
             {CATEGORIES.map((c) => (
               <div className="help-cat" key={c.key} onClick={() => setQuery('')}>
                 <div className="hc-em">{c.em}</div>
                 <h4>{c.title}</h4>
               </div>
             ))}
-          </div>
+          </Reveal>
 
-          <div className="sec-head related-heading"><h2>Frequently asked questions</h2></div>
+          <Reveal><div className="sec-head related-heading"><h2>Frequently asked questions</h2></div></Reveal>
           {filtered.length === 0 ? (
             <p style={{ textAlign: 'center', color: 'var(--muted)' }}>No results for "{query}" — try a different search term or contact us below.</p>
           ) : (
-            <div className="acc" style={{ maxWidth: 780 }}>
+            <Reveal className="acc" style={{ maxWidth: 780 }}>
               {filtered.map((item) => {
                 const i = faqs.indexOf(item)
                 return (
@@ -53,16 +54,16 @@ export default function Help() {
                   </div>
                 )
               })}
-            </div>
+            </Reveal>
           )}
 
-          <div className="help-support-card">
+          <Reveal className="help-support-card">
             <div>
               <h3>Can't find what you're looking for?</h3>
               <p>Our support team typically replies within one business day.</p>
             </div>
             <a className="btn btn-gold" href="mailto:support@edusphere.co">Contact support</a>
-          </div>
+          </Reveal>
         </div>
       </div>
     </>

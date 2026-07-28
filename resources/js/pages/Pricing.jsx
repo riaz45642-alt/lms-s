@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRouter } from '../router/Router'
 import { pricingPlans, pricingFaqs } from '../data/pricingData'
 import { PageHero } from '../components/ui/UI'
+import Reveal from '../components/Reveal'
 import './pages.css'
 
 export default function Pricing() {
@@ -29,7 +30,7 @@ export default function Pricing() {
             {annual && <span className="save-pill">Save up to 35%</span>}
           </div>
 
-          <div className="plans-grid">
+          <Reveal className="plans-grid" stagger>
             {pricingPlans.map((plan) => {
               const price = annual ? plan.annual : plan.monthly
               return (
@@ -56,10 +57,10 @@ export default function Pricing() {
                 </div>
               )
             })}
-          </div>
+          </Reveal>
 
-          <div className="sec-head related-heading"><h2>Pricing questions</h2></div>
-          <div className="acc" style={{ maxWidth: 780 }}>
+          <Reveal><div className="sec-head related-heading"><h2>Pricing questions</h2></div></Reveal>
+          <Reveal className="acc" style={{ maxWidth: 780 }}>
             {pricingFaqs.map((item, i) => (
               <div className={`acc-item${openFaq === i ? ' open' : ''}`} key={item.q}>
                 <button className="acc-q" onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>{item.q}</button>
@@ -68,15 +69,15 @@ export default function Pricing() {
                 </div>
               </div>
             ))}
-          </div>
+          </Reveal>
 
-          <div className="help-support-card">
+          <Reveal className="help-support-card">
             <div>
               <h3>Still not sure which plan is right?</h3>
               <p>Our team can help you pick the best fit for your family, classroom or school.</p>
             </div>
             <button className="btn btn-gold" onClick={() => navigate('/help')}>Talk to us</button>
-          </div>
+          </Reveal>
         </div>
       </div>
     </>

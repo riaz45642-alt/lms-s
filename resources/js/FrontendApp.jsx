@@ -14,6 +14,8 @@ import Footer from './components/Footer'
 import Login from './components/Login'
 import Signup from './components/Signup'
 import Reveal from './components/Reveal'
+import ScrollProgress from './components/ScrollProgress'
+import FeatureJourney from './components/FeatureJourney'
 import { RouterProvider, useRouter } from './router/Router'
 import { AppProvider } from './context/AppContext'
 import Worksheets from './pages/Worksheets'
@@ -26,14 +28,25 @@ import ActivityDetails from './pages/ActivityDetails'
 import { NotFound } from './pages/NotFound'
 import './App.css'
 
-const HOME_SECTIONS = [Intro, Featured, WaveBand, Popular, Events, LearnMore, Testimonials, Newsletter, Faq]
+const HOME_SECTIONS = [
+  { Comp: Intro, variant: 'up' },
+  { Comp: FeatureJourney, variant: 'up' },
+  { Comp: Featured, variant: 'up' },
+  { Comp: WaveBand, variant: 'scale' },
+  { Comp: Popular, variant: 'left' },
+  { Comp: Events, variant: 'right' },
+  { Comp: LearnMore, variant: 'up' },
+  { Comp: Testimonials, variant: 'up' },
+  { Comp: Newsletter, variant: 'up' },
+  { Comp: Faq, variant: 'up' },
+]
 
 function HomePage() {
   return (
     <>
       <Hero />
-      {HOME_SECTIONS.map((Comp, i) => (
-        <Reveal key={i}>
+      {HOME_SECTIONS.map(({ Comp, variant }, i) => (
+        <Reveal key={i} variant={variant}>
           <Comp />
         </Reveal>
       ))}
@@ -95,6 +108,7 @@ function AppShell() {
 
   return (
     <>
+      <ScrollProgress />
       <Navbar
         onNavigate={setAuthView}
         onSectionSelect={handleSectionSelect}

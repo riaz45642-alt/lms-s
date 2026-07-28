@@ -22,11 +22,14 @@ export default function Testimonials() {
         <div className="tcarousel">
           {testimonials.map((t, i) => (
             <div className={`tslide${i === ti ? ' active' : ''}`} key={t.name}>
-              <div className="stars">{t.stars}</div>
-              <p>"{t.quote}"</p>
-              <div className="tperson">
+              <span className="tquote-mark" aria-hidden="true">&ldquo;</span>
+              <div className="tslide-person">
                 <div className="av">{t.initials}</div>
                 <div><b>{t.name}</b><span>{t.role}</span></div>
+              </div>
+              <div className="tslide-body">
+                <div className="stars">{t.stars}</div>
+                <p>{t.quote}</p>
               </div>
             </div>
           ))}
@@ -38,7 +41,9 @@ export default function Testimonials() {
               className={`tdot${i === ti ? ' active' : ''}`}
               aria-label={`Testimonial ${i + 1}`}
               onClick={() => setTi(i)}
-            />
+            >
+              {i === ti && <span className="tdot-progress" key={ti} />}
+            </button>
           ))}
         </div>
       </div>

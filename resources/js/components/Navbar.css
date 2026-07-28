@@ -1,7 +1,12 @@
-header{position:sticky;top:0;z-index:60;background:rgba(250,247,255,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:center;gap:22px;height:72px}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:800;font-size:21px;color:var(--navy);cursor:pointer;flex:none}
+header{position:sticky;top:0;z-index:60;background:rgba(250,247,255,.85);backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:background .25s ease,box-shadow .25s ease,border-color .25s ease}
+header.scrolled{background:rgba(255,255,255,.92);border-color:var(--line);box-shadow:0 8px 24px rgba(36,26,77,.08)}
+.nav{display:flex;align-items:center;gap:22px;height:72px;transition:height .25s ease}
+header.scrolled .nav{height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:800;font-size:21px;color:var(--navy);cursor:pointer;flex:none;transition:transform .2s ease}
+.logo:hover{transform:scale(1.03)}
 .logo .blue{color:var(--blue)}
+.logo svg{transition:transform .4s ease}
+.logo:hover svg{transform:rotate(-8deg)}
 
 .nav-links{display:flex;align-items:center;gap:6px;margin-left:auto;font-family:var(--font-d);font-weight:600;font-size:14px;color:var(--navy);white-space:nowrap}
 

@@ -1,5 +1,6 @@
 import { teamData } from '../data/appData'
 import { PageHero } from '../components/ui/UI'
+import Reveal from '../components/Reveal'
 import './pages.css'
 
 const FEATURES = [
@@ -17,7 +18,7 @@ export default function About() {
       <PageHero eyebrow="About EduSphere" title="Learn, practice, succeed" subtitle="EduSphere gives students, teachers and parents a single home for curriculum-aligned worksheets, subjects and classroom events." />
       <div className="page-section tight">
         <div className="wrap">
-          <div className="mission-grid">
+          <Reveal className="mission-grid" stagger>
             <div className="mission-card">
               <div className="m-em">🎯</div>
               <h3>Our mission</h3>
@@ -28,10 +29,10 @@ export default function About() {
               <h3>Our vision</h3>
               <p>A world where every learner has an engaging, personalised path to mastering core subjects — supported by teachers, parents and technology working together.</p>
             </div>
-          </div>
+          </Reveal>
 
-          <div className="sec-head related-heading"><h2>What we offer</h2></div>
-          <div className="feature-grid">
+          <Reveal><div className="sec-head related-heading"><h2>What we offer</h2></div></Reveal>
+          <Reveal className="feature-grid" stagger>
             {FEATURES.map((f) => (
               <div className="feature-item" key={f.title}>
                 <div className="f-em">{f.em}</div>
@@ -39,10 +40,10 @@ export default function About() {
                 <p>{f.desc}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
 
-          <div className="sec-head related-heading"><h2>Meet the team</h2></div>
-          <div className="team-grid">
+          <Reveal><div className="sec-head related-heading"><h2>Meet the team</h2></div></Reveal>
+          <Reveal className="team-grid" stagger>
             {teamData.map((t) => (
               <div className="team-card" key={t.name}>
                 <div className="t-em">{t.em}</div>
@@ -50,7 +51,7 @@ export default function About() {
                 <span>{t.role}</span>
               </div>
             ))}
-          </div>
+          </Reveal>
         </div>
       </div>
     </>

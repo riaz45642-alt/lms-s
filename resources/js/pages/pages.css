@@ -99,14 +99,17 @@
 @media(max-width:520px){.feature-grid{grid-template-columns:1fr}}
 .feature-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow-sm);transition:.18s}
 .feature-item:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.feature-item .f-em{font-size:24px;margin-bottom:8px}
+.feature-item .f-em{font-size:24px;margin-bottom:8px;display:inline-block;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+.feature-item:hover .f-em{transform:scale(1.2) rotate(-8deg)}
 .feature-item h4{font-size:15px;margin-bottom:6px}
 .feature-item p{color:var(--muted);font-size:13px;line-height:1.6}
 .team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:20px}
 @media(max-width:820px){.team-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.team-grid{grid-template-columns:1fr}}
-.team-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;text-align:center;box-shadow:var(--shadow-sm)}
-.team-card .t-em{font-size:40px;margin-bottom:12px}
+.team-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;text-align:center;box-shadow:var(--shadow-sm);transition:transform .22s ease,box-shadow .22s ease}
+.team-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.team-card .t-em{font-size:40px;margin-bottom:12px;display:inline-block;transition:transform .3s ease}
+.team-card:hover .t-em{transform:scale(1.12) rotate(6deg)}
 .team-card h4{font-size:15px}
 .team-card span{color:var(--muted);font-size:12px;font-weight:600}
 
@@ -116,7 +119,8 @@
 @media(max-width:520px){.help-cats{grid-template-columns:1fr}}
 .help-cat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;text-align:center;box-shadow:var(--shadow-sm);cursor:pointer;transition:.18s}
 .help-cat:hover{border-color:var(--blue);transform:translateY(-4px);box-shadow:var(--shadow)}
-.help-cat .hc-em{font-size:28px;margin-bottom:8px}
+.help-cat .hc-em{font-size:28px;margin-bottom:8px;display:inline-block;transition:transform .3s ease}
+.help-cat:hover .hc-em{transform:scale(1.15) rotate(-6deg)}
 .help-cat h4{font-size:14px}
 .help-support-card{background:linear-gradient(120deg,var(--navy),var(--navy-deep));border-radius:var(--radius-lg);padding:36px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:var(--shadow);margin-top:40px}
 .help-support-card h3{color:#fff;font-size:20px}

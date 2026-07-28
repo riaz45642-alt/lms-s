@@ -1,8 +1,13 @@
 .hero{padding:76px 0 64px;overflow:hidden}
 .hero-glow{position:absolute;top:-160px;right:-120px;width:520px;height:520px;background:radial-gradient(circle,rgba(108,76,241,.22),transparent 70%);pointer-events:none}
+.hero-blob{position:absolute;border-radius:50%;filter:blur(2px);pointer-events:none;opacity:.55;animation:blobMove 14s ease-in-out infinite}
+.blob-a{top:40px;left:-60px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,138,61,.28),transparent 70%)}
+.blob-b{bottom:-40px;right:18%;width:220px;height:220px;background:radial-gradient(circle,rgba(108,76,241,.2),transparent 70%);animation-delay:-6s}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;position:relative}
 .hero-copy h1{font-size:48px;font-weight:800;letter-spacing:-.02em;margin-top:14px}
 .hero-copy h1 span{color:var(--blue)}
+.rotating-word{color:var(--blue);display:inline-block;animation:wordIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes wordIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .hero .lead{margin-top:18px;font-size:18px;color:var(--muted);max-width:480px}
 .hero-actions{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
 .hero-stats{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap}
@@ -17,6 +22,8 @@
   gap:16px;
 }
 .bento-card{
+  --rx:0deg;
+  --ry:0deg;
   background:#fff;
   border:1px solid var(--line);
   border-radius:var(--radius);
@@ -25,9 +32,17 @@
   display:flex;
   flex-direction:column;
   gap:10px;
-  transition:transform .25s ease,box-shadow .25s ease;
+  transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry));
+  transition:transform .15s ease,box-shadow .25s ease;
+  opacity:0;
+  animation:cardIn .6s cubic-bezier(.2,.7,.2,1) forwards;
 }
-.bento-card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.bento-main{animation-delay:.05s}
+.bento-small{animation-delay:.2s}
+.bento-small.accent{animation-delay:.32s}
+.bento-wide{animation-delay:.44s}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:perspective(700px) rotateX(var(--rx)) rotateY(var(--ry))}}
+.bento-card:hover{box-shadow:var(--shadow)}
 .bc-em{font-size:30px}
 .bento-card b{font-family:var(--font-d);font-size:14.5px;color:var(--navy);font-weight:700}
 .bento-main{grid-row:span 2;background:linear-gradient(160deg,var(--sky) 0%,#fff 70%);justify-content:space-between}
