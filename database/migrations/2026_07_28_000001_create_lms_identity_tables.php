@@ -38,21 +38,19 @@ return new class extends Migration
         });
 
         Schema::create('parent_student', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('parent_id')->constrained('parent_profiles')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('student_profiles')->cascadeOnDelete();
             $table->string('relationship', 50)->nullable();
             $table->timestamps();
-            $table->unique(['parent_id', 'student_id']);
+            $table->primary(['parent_id', 'student_id']);
             $table->index(['student_id', 'parent_id']);
         });
 
         Schema::create('teacher_student', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('teacher_id')->constrained('teacher_profiles')->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('student_profiles')->cascadeOnDelete();
             $table->timestamps();
-            $table->unique(['teacher_id', 'student_id']);
+            $table->primary(['teacher_id', 'student_id']);
             $table->index(['student_id', 'teacher_id']);
         });
 
@@ -68,6 +66,9 @@ return new class extends Migration
         Schema::dropIfExists('student_profiles');
         Schema::dropIfExists('teacher_profiles');
         Schema::dropIfExists('parent_profiles');
-        Schema::table('users', fn (Blueprint $table) => $table->dropColumn('role'));
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropIndex(['role']);
+            $table->dropColumn('role');
+        });
     }
 };

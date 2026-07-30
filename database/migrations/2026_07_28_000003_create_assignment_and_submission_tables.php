@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('worksheet_assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('worksheet_id')->constrained()->restrictOnDelete();
+            $table->foreignId('worksheet_id')->constrained('worksheets')->restrictOnDelete();
             $table->foreignId('student_id')->constrained('student_profiles')->cascadeOnDelete();
             $table->foreignId('assigned_by')->constrained('users')->restrictOnDelete();
             $table->text('instructions')->nullable();

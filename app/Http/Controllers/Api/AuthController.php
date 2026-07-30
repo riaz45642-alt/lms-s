@@ -79,7 +79,13 @@ class AuthController extends Controller
     {
         return [
             'token' => $user->createToken('lms-web')->plainTextToken,
-            'user' => $user->load('parentProfile', 'teacherProfile', 'studentProfile'),
+            'portal_path' => $user->portalPath(),
+            'user' => $user->load(
+                'roles.permissions',
+                'parentProfile',
+                'teacherProfile',
+                'studentProfile.schoolClass'
+            ),
         ];
     }
 }

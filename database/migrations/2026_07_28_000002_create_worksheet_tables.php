@@ -39,12 +39,11 @@ return new class extends Migration
         });
 
         Schema::create('bundle_worksheet', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('bundle_id')->constrained('worksheet_bundles')->cascadeOnDelete();
-            $table->foreignId('worksheet_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('worksheet_id')->constrained('worksheets')->cascadeOnDelete();
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
-            $table->unique(['bundle_id', 'worksheet_id']);
+            $table->primary(['bundle_id', 'worksheet_id']);
             $table->index(['bundle_id', 'position']);
         });
 

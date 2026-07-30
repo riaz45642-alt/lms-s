@@ -27,6 +27,10 @@ class LmsDemoSeeder extends Seeder
                 ['name' => 'Demo Student', 'password' => 'password', 'role' => 'student']
             );
 
+            $teacherUser->assignRole('teacher');
+            $parentUser->assignRole('parent');
+            $studentUser->assignRole('student');
+
             $teacher = TeacherProfile::updateOrCreate(
                 ['user_id' => $teacherUser->id],
                 ['employee_number' => 'T-DEMO-001', 'specialization' => 'Primary Education']

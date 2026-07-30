@@ -9,13 +9,18 @@ class StudentProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'student_number', 'date_of_birth', 'grade_level'];
+    protected $fillable = ['user_id', 'class_id', 'student_number', 'date_of_birth', 'grade_level'];
 
     protected $casts = ['date_of_birth' => 'date'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function schoolClass()
+    {
+        return $this->belongsTo(SchoolClass::class, 'class_id');
     }
 
     public function parents()
@@ -39,5 +44,15 @@ class StudentProfile extends Model
     public function reports()
     {
         return $this->hasMany(PerformanceReport::class, 'student_id');
+    }
+
+    public function submissions()
+    {
+        return $this->hasManyThrough(
+            WorksheetSubmission::class,
+            WorksheetAssignment::class,
+            'student_id',
+            'assignment_id'
+        );
     }
 }
