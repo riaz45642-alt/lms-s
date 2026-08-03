@@ -14,6 +14,10 @@ class LmsDemoSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
+            $adminUser = User::updateOrCreate(
+                ['email' => 'admin@example.com'],
+                ['name' => 'Demo Admin', 'password' => 'password', 'role' => 'admin']
+            );
             $teacherUser = User::updateOrCreate(
                 ['email' => 'teacher@example.com'],
                 ['name' => 'Demo Teacher', 'password' => 'password', 'role' => 'teacher']
@@ -27,6 +31,7 @@ class LmsDemoSeeder extends Seeder
                 ['name' => 'Demo Student', 'password' => 'password', 'role' => 'student']
             );
 
+            $adminUser->assignRole('admin');
             $teacherUser->assignRole('teacher');
             $parentUser->assignRole('parent');
             $studentUser->assignRole('student');
