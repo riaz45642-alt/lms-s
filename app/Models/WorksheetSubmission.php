@@ -10,11 +10,11 @@ class WorksheetSubmission extends Model
     use HasFactory;
 
     protected $fillable = [
-        'assignment_id', 'uploaded_by', 'file_path', 'original_filename',
+        'assignment_id', 'attempt_number', 'uploaded_by', 'file_path', 'original_filename',
         'mime_type', 'file_size', 'student_note', 'submitted_at',
     ];
 
-    protected $casts = ['submitted_at' => 'datetime'];
+    protected $casts = ['attempt_number' => 'integer', 'submitted_at' => 'datetime'];
 
     public function assignment()
     {

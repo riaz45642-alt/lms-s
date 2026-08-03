@@ -13,11 +13,13 @@ class Worksheet extends Model
         'created_by', 'teacher_id', 'title', 'description', 'subject', 'grade_level', 'instructions',
         'file_path', 'original_filename', 'mime_type', 'file_size',
         'default_total_marks', 'is_published',
+        'default_due_days',
     ];
 
     protected $casts = [
         'default_total_marks' => 'decimal:2',
         'is_published' => 'boolean',
+        'default_due_days' => 'integer',
     ];
 
     public function teacher()

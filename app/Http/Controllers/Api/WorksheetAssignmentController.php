@@ -19,6 +19,8 @@ class WorksheetAssignmentController extends Controller
             'student.user',
             'assigner',
             'submission.review.report',
+            'submissions.uploader',
+            'submissions.review.report',
         ]);
 
         if ($user->hasRole('student')) {
@@ -46,8 +48,13 @@ class WorksheetAssignmentController extends Controller
             abort_unless($worksheet->is_published, 422, 'Parents can assign only published worksheets.');
         }
 
+        $data = $request->validated();
+        if (empty($data['due_at']) && $worksheet->default_due_days) {
+            $data['due_at'] = now()->addDays($worksheet->default_due_days);
+        }
+
         $assignment = WorksheetAssignment::create([
-            ...$request->validated(),
+            ...$data,
             'assigned_by' => $user->id,
             'assigned_at' => now(),
             'status' => 'assigned',
@@ -60,7 +67,14 @@ class WorksheetAssignmentController extends Controller
     {
         $this->authorizeAccess($request, $worksheetAssignment);
 
-        return $worksheetAssignment->load('worksheet.creator', 'student.user', 'assigner', 'submission.review.report');
+        return $worksheetAssignment->load(
+            'worksheet.creator',
+            'student.user',
+            'assigner',
+            'submission.review.report',
+            'submissions.uploader',
+            'submissions.review.report'
+        );
     }
 
     private function authorizeAccess(Request $request, WorksheetAssignment $assignment): void

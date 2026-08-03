@@ -32,7 +32,9 @@ class ManualReviewService
             );
 
             $assignment = $submission->assignment;
-            $assignment->update(['status' => $isChecked ? 'checked' : 'submitted']);
+            if ($assignment->submission()->whereKey($submission->id)->exists()) {
+                $assignment->update(['status' => $isChecked ? 'checked' : 'submitted']);
+            }
 
             if ($isChecked) {
                 PerformanceReport::updateOrCreate(

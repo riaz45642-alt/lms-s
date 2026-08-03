@@ -18,6 +18,8 @@ class StoreAssignmentRequest extends FormRequest
             'student_id' => ['required', 'integer', 'exists:student_profiles,id'],
             'instructions' => ['nullable', 'string', 'max:10000'],
             'due_at' => ['nullable', 'date', 'after:now'],
+            'allow_resubmission' => ['sometimes', 'boolean'],
+            'allow_late_submission' => ['sometimes', 'boolean'],
         ];
     }
 }

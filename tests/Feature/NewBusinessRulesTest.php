@@ -6,6 +6,7 @@ use App\Models\ParentProfile;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use App\Models\WorksheetAssignment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -103,6 +104,55 @@ class NewBusinessRulesTest extends TestCase
         Sanctum::actingAs($student->user);
         $this->getJson('/api/students')->assertForbidden();
         $this->getJson("/api/worksheets/{$worksheetId}")->assertOk();
+    }
+
+    public function test_deadlines_duplicates_and_versioned_resubmissions_are_enforced(): void
+    {
+        Storage::fake('local');
+        $studentUser = User::factory()->create(['role' => 'student']);
+        $student = StudentProfile::create(['user_id' => $studentUser->id]);
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+        $worksheetId = $this->post('/api/worksheets', $this->worksheetPayload())->assertCreated()->json('id');
+        $assignmentId = $this->postJson('/api/assignments', [
+            'worksheet_id' => $worksheetId,
+            'student_id' => $student->id,
+        ])->assertCreated()->json('id');
+
+        Sanctum::actingAs($studentUser);
+        $upload = fn (string $name) => $this->post("/api/assignments/{$assignmentId}/submission", [
+            'file' => UploadedFile::fake()->create($name, 20, 'application/pdf'),
+        ]);
+        $upload('attempt-1.pdf')->assertCreated()->assertJsonPath('attempt_number', 1);
+        $upload('duplicate.pdf')->assertStatus(409);
+
+        $assignment = WorksheetAssignment::findOrFail($assignmentId);
+        $assignment->update(['allow_resubmission' => true]);
+        $upload('attempt-2.pdf')->assertCreated()->assertJsonPath('attempt_number', 2);
+
+        $assignment->update(['due_at' => now()->subMinute(), 'allow_late_submission' => false]);
+        $upload('late-blocked.pdf')->assertStatus(409);
+        $assignment->update(['allow_late_submission' => true]);
+        $upload('attempt-3.pdf')->assertCreated()->assertJsonPath('attempt_number', 3);
+        $this->assertDatabaseCount('worksheet_submissions', 3);
+    }
+
+    public function test_student_progress_history_is_visible_only_to_authorized_relationships(): void
+    {
+        $student = StudentProfile::create(['user_id' => User::factory()->create(['role' => 'student'])->id]);
+        $teacherUser = User::factory()->create(['role' => 'teacher']);
+        $teacher = TeacherProfile::create(['user_id' => $teacherUser->id]);
+        $teacher->students()->attach($student);
+
+        Sanctum::actingAs($teacherUser);
+        $this->getJson("/api/students/{$student->id}/progress")
+            ->assertOk()
+            ->assertJsonPath('student.id', $student->id)
+            ->assertJsonPath('summary.assignments', 0);
+
+        $unrelatedTeacher = User::factory()->create(['role' => 'teacher']);
+        TeacherProfile::create(['user_id' => $unrelatedTeacher->id]);
+        Sanctum::actingAs($unrelatedTeacher);
+        $this->getJson("/api/students/{$student->id}/progress")->assertForbidden();
     }
 
     private function worksheetPayload(): array

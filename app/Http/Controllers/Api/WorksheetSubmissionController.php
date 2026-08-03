@@ -15,7 +15,6 @@ class WorksheetSubmissionController extends Controller
     public function store(StoreSubmissionRequest $request, WorksheetAssignment $worksheetAssignment)
     {
         $user = $request->user();
-        abort_if($worksheetAssignment->status === 'checked', 409, 'Checked assignments cannot be resubmitted.');
 
         if ($user->hasRole('parent')) {
             abort_unless($user->parentProfile?->students()->whereKey($worksheetAssignment->student_id)->exists(), 403);
@@ -23,36 +22,46 @@ class WorksheetSubmissionController extends Controller
             abort_unless($user->studentProfile?->id === $worksheetAssignment->student_id, 403);
         }
 
+        abort_if(
+            $worksheetAssignment->due_at?->isPast() && ! $worksheetAssignment->allow_late_submission,
+            409,
+            'The submission deadline has passed.'
+        );
+        abort_if(
+            $worksheetAssignment->submission && ! $worksheetAssignment->allow_resubmission,
+            409,
+            'This assignment has already been submitted and resubmission is not allowed.'
+        );
+
         $file = $request->file('file');
         $path = $file->store('submissions');
-        $oldPath = $worksheetAssignment->submission?->file_path;
 
         try {
             $submission = DB::transaction(function () use ($request, $worksheetAssignment, $file, $path, $user) {
-                $submission = WorksheetSubmission::updateOrCreate(
-                    ['assignment_id' => $worksheetAssignment->id],
-                    [
-                        'uploaded_by' => $user->id,
-                        'file_path' => $path,
-                        'original_filename' => $file->getClientOriginalName(),
-                        'mime_type' => $file->getMimeType(),
-                        'file_size' => $file->getSize(),
-                        'student_note' => $request->validated('student_note'),
-                        'submitted_at' => now(),
-                    ]
-                );
+                $assignment = WorksheetAssignment::query()->lockForUpdate()->findOrFail($worksheetAssignment->id);
+                $latestAttempt = WorksheetSubmission::where('assignment_id', $assignment->id)->max('attempt_number');
+                abort_if($latestAttempt && ! $assignment->allow_resubmission, 409, 'Resubmission is not allowed.');
+                abort_if($assignment->due_at?->isPast() && ! $assignment->allow_late_submission, 409, 'The submission deadline has passed.');
 
-                $worksheetAssignment->update(['status' => 'submitted']);
+                $submission = WorksheetSubmission::create([
+                    'assignment_id' => $assignment->id,
+                    'attempt_number' => ($latestAttempt ?? 0) + 1,
+                    'uploaded_by' => $user->id,
+                    'file_path' => $path,
+                    'original_filename' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                    'student_note' => $request->validated('student_note'),
+                    'submitted_at' => now(),
+                ]);
+
+                $assignment->update(['status' => 'submitted']);
 
                 return $submission;
             });
         } catch (\Throwable $exception) {
             Storage::delete($path);
             throw $exception;
-        }
-
-        if ($oldPath && $oldPath !== $path) {
-            Storage::delete($oldPath);
         }
 
         return response()->json($submission->load('assignment.worksheet', 'uploader', 'review.report'), 201);

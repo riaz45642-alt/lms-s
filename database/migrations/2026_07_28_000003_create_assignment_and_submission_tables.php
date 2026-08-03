@@ -17,6 +17,8 @@ return new class extends Migration
             $table->text('instructions')->nullable();
             $table->timestampTz('assigned_at')->useCurrent();
             $table->timestampTz('due_at')->nullable()->index();
+            $table->boolean('allow_resubmission')->default(false);
+            $table->boolean('allow_late_submission')->default(false);
             $table->string('status', 20)->default('assigned')->index();
             $table->timestamps();
             $table->unique(['worksheet_id', 'student_id', 'assigned_at']);
@@ -26,7 +28,8 @@ return new class extends Migration
 
         Schema::create('worksheet_submissions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assignment_id')->unique()->constrained('worksheet_assignments')->cascadeOnDelete();
+            $table->foreignId('assignment_id')->constrained('worksheet_assignments')->cascadeOnDelete();
+            $table->unsignedSmallInteger('attempt_number')->default(1);
             $table->foreignId('uploaded_by')->constrained('users')->restrictOnDelete();
             $table->string('file_path');
             $table->string('original_filename');
@@ -36,6 +39,7 @@ return new class extends Migration
             $table->timestampTz('submitted_at')->useCurrent()->index();
             $table->timestamps();
             $table->index(['uploaded_by', 'submitted_at']);
+            $table->unique(['assignment_id', 'attempt_number']);
         });
 
         if (DB::getDriverName() === 'pgsql') {

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('mime_type', 100);
             $table->unsignedBigInteger('file_size');
             $table->decimal('default_total_marks', 8, 2)->nullable();
+            $table->unsignedSmallInteger('default_due_days')->nullable();
             $table->boolean('is_published')->default(false)->index();
             $table->timestamps();
             $table->index(['teacher_id', 'created_at']);

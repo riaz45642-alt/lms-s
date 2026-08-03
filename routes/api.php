@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PerformanceReportController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\StudentDirectoryController;
+use App\Http\Controllers\Api\StudentProgressController;
 use App\Http\Controllers\Api\TeacherReviewController;
 use App\Http\Controllers\Api\WorksheetAssignmentController;
 use App\Http\Controllers\Api\WorksheetBundleController;
@@ -23,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('profile', [ProfileController::class, 'update']);
     Route::get('dashboard', DashboardController::class);
     Route::get('students', StudentDirectoryController::class)->middleware('role:parent,teacher,admin');
+    Route::get('students/{student}/progress', StudentProgressController::class);
     Route::post('auth/logout', [AuthController::class, 'logout']);
 
     Route::apiResource('worksheets', WorksheetController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
@@ -38,7 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('submissions/{worksheetSubmission}/download', [WorksheetSubmissionController::class, 'download']);
 
     Route::get('reviews', [TeacherReviewController::class, 'index'])->middleware('role:teacher,admin');
-    Route::post('submissions/{worksheetSubmission}/review', [TeacherReviewController::class, 'store'])->middleware('role:teacher,admin');
+    Route::post('submissions/{worksheetSubmission}/review', [TeacherReviewController::class, 'store'])->middleware('role:teacher');
     Route::get('reviews/{teacherReview}', [TeacherReviewController::class, 'show']);
 
     Route::apiResource('performance-reports', PerformanceReportController::class)->only(['index', 'show']);
