@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreWorksheetRequest;
+use App\Http\Requests\UpdateWorksheetRequest;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,9 +13,15 @@ class WorksheetController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Worksheet::query()->with('teacher.user');
+        $this->authorize('viewAny', Worksheet::class);
+        $user = $request->user();
+        $query = Worksheet::query()->with('creator');
 
-        if (! $request->user()->hasRole('teacher', 'admin')) {
+        if ($user->hasRole('teacher')) {
+            $query->whereHas('assignments.student.teachers', fn ($q) => $q->whereKey($user->teacherProfile?->id));
+        } elseif ($user->hasRole('student')) {
+            $query->whereHas('assignments', fn ($q) => $q->where('student_id', $user->studentProfile?->id));
+        } elseif ($user->hasRole('parent')) {
             $query->where('is_published', true);
         }
 
@@ -27,31 +34,31 @@ class WorksheetController extends Controller
 
     public function store(StoreWorksheetRequest $request)
     {
-        $teacher = $request->user()->teacherProfile;
-        abort_unless($teacher, 422, 'A teacher profile is required.');
+        $this->authorize('create', Worksheet::class);
 
         $file = $request->file('file');
-        $worksheet = $teacher->worksheets()->create([
+        $worksheet = Worksheet::create([
             ...$request->safe()->except('file'),
+            'created_by' => $request->user()->id,
             'file_path' => $file->store('worksheets'),
             'original_filename' => $file->getClientOriginalName(),
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
         ]);
 
-        return response()->json($worksheet->load('teacher.user'), 201);
+        return response()->json($worksheet->load('creator'), 201);
     }
 
     public function show(Request $request, Worksheet $worksheet)
     {
-        $this->authorizeView($request, $worksheet);
+        $this->authorize('view', $worksheet);
 
-        return $worksheet->load('teacher.user', 'bundles');
+        return $worksheet->load('creator', 'bundles');
     }
 
     public function download(Request $request, Worksheet $worksheet)
     {
-        $this->authorizeView($request, $worksheet);
+        $this->authorize('view', $worksheet);
         abort_unless(Storage::exists($worksheet->file_path), 404);
 
         return Storage::download($worksheet->file_path, $worksheet->original_filename);
@@ -59,7 +66,7 @@ class WorksheetController extends Controller
 
     public function destroy(Request $request, Worksheet $worksheet)
     {
-        abort_unless($request->user()->hasRole('admin') || $worksheet->teacher_id === $request->user()->teacherProfile?->id, 403);
+        $this->authorize('delete', $worksheet);
         abort_if($worksheet->assignments()->exists(), 409, 'Assigned worksheets cannot be deleted.');
 
         Storage::delete($worksheet->file_path);
@@ -68,12 +75,36 @@ class WorksheetController extends Controller
         return response()->noContent();
     }
 
-    private function authorizeView(Request $request, Worksheet $worksheet): void
+    public function update(UpdateWorksheetRequest $request, Worksheet $worksheet)
     {
-        $allowed = $worksheet->is_published
-            || $request->user()->hasRole('admin')
-            || ($request->user()->hasRole('teacher') && $worksheet->teacher_id === $request->user()->teacherProfile?->id);
+        $this->authorize('update', $worksheet);
+        $data = $request->safe()->except('file');
+        $newFile = $request->file('file');
+        $oldPath = $worksheet->file_path;
 
-        abort_unless($allowed, 403);
+        if ($newFile) {
+            $data = [
+                ...$data,
+                'file_path' => $newFile->store('worksheets'),
+                'original_filename' => $newFile->getClientOriginalName(),
+                'mime_type' => $newFile->getMimeType(),
+                'file_size' => $newFile->getSize(),
+            ];
+        }
+
+        try {
+            $worksheet->update($data);
+        } catch (\Throwable $exception) {
+            if ($newFile) {
+                Storage::delete($data['file_path']);
+            }
+            throw $exception;
+        }
+
+        if ($newFile && $oldPath !== $data['file_path']) {
+            Storage::delete($oldPath);
+        }
+
+        return $worksheet->fresh()->load('creator');
     }
 }

@@ -10,7 +10,7 @@ class Worksheet extends Model
     use HasFactory;
 
     protected $fillable = [
-        'teacher_id', 'title', 'description', 'subject', 'grade_level', 'instructions',
+        'created_by', 'teacher_id', 'title', 'description', 'subject', 'grade_level', 'instructions',
         'file_path', 'original_filename', 'mime_type', 'file_size',
         'default_total_marks', 'is_published',
     ];
@@ -23,6 +23,11 @@ class Worksheet extends Model
     public function teacher()
     {
         return $this->belongsTo(TeacherProfile::class, 'teacher_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function bundles()

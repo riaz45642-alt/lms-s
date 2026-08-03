@@ -19,6 +19,8 @@ class WorksheetSubmissionController extends Controller
 
         if ($user->hasRole('parent')) {
             abort_unless($user->parentProfile?->students()->whereKey($worksheetAssignment->student_id)->exists(), 403);
+        } elseif ($user->hasRole('student')) {
+            abort_unless($user->studentProfile?->id === $worksheetAssignment->student_id, 403);
         }
 
         $file = $request->file('file');
@@ -78,7 +80,7 @@ class WorksheetSubmissionController extends Controller
         $allowed = $user->hasRole('admin')
             || ($user->hasRole('student') && $assignment->student_id === $user->studentProfile?->id)
             || ($user->hasRole('parent') && $user->parentProfile?->students()->whereKey($assignment->student_id)->exists())
-            || ($user->hasRole('teacher') && $assignment->worksheet->teacher_id === $user->teacherProfile?->id);
+            || ($user->hasRole('teacher') && $user->teacherProfile?->students()->whereKey($assignment->student_id)->exists());
         abort_unless($allowed, 403);
     }
 }

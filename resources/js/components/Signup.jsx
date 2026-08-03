@@ -1,20 +1,35 @@
 import { useState } from 'react'
+import { useApp } from '../context/AppContext'
+import { errorMessage } from '../services/api'
 import './Auth.css'
 
 export default function Signup({ onBack, onSwitch }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'Parent' })
+  const { register } = useApp()
+  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', role: 'parent', parent_id: '', teacher_id: '' })
   const [showPass, setShowPass] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Signup data:', form)
+    setError(''); setLoading(true)
+    try {
+      const payload = { ...form }
+      if (!payload.parent_id) delete payload.parent_id
+      if (!payload.teacher_id) delete payload.teacher_id
+      const data = await register(payload)
+      window.history.replaceState({}, '', data.portal_path || '/dashboard')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    } catch (requestError) {
+      setError(errorMessage(requestError))
+    } finally { setLoading(false) }
   }
 
-  const roles = ['Parent', 'Tutor', 'School']
+  const roles = [{ value: 'parent', label: 'Parent' }, { value: 'teacher', label: 'Teacher' }, { value: 'student', label: 'Student' }]
 
   return (
     <section className="auth">
@@ -49,16 +64,17 @@ export default function Signup({ onBack, onSwitch }) {
           {roles.map((r) => (
             <button
               type="button"
-              key={r}
-              className={`role-tab${form.role === r ? ' active' : ''}`}
-              onClick={() => setForm({ ...form, role: r })}
+              key={r.value}
+              className={`role-tab${form.role === r.value ? ' active' : ''}`}
+              onClick={() => setForm({ ...form, role: r.value })}
             >
-              {r}
+              {r.label}
             </button>
           ))}
         </div>
 
         <form onSubmit={handleSubmit}>
+          {error && <div className="auth-error" role="alert">{error}</div>}
           <label className="field">
             <span>Full name</span>
             <input
@@ -100,12 +116,22 @@ export default function Signup({ onBack, onSwitch }) {
             </div>
           </label>
 
+          <label className="field">
+            <span>Confirm password</span>
+            <input type={showPass ? 'text' : 'password'} name="password_confirmation" value={form.password_confirmation} onChange={handleChange} required />
+          </label>
+
+          {form.role === 'student' && <>
+            <label className="field"><span>Parent profile ID (optional)</span><input type="number" name="parent_id" value={form.parent_id} onChange={handleChange} min="1" /></label>
+            <label className="field"><span>Teacher profile ID (optional)</span><input type="number" name="teacher_id" value={form.teacher_id} onChange={handleChange} min="1" /></label>
+          </>}
+
           <label className="checkbox terms">
             <input type="checkbox" required />
             I agree to the <a className="link" href="#">Terms</a> &amp; <a className="link" href="#">Privacy Policy</a>
           </label>
 
-          <button type="submit" className="btn btn-gold auth-submit">Sign up as {form.role}</button>
+          <button type="submit" className="btn btn-gold auth-submit" disabled={loading}>{loading ? 'Creating account...' : `Sign up as ${form.role}`}</button>
         </form>
 
         <div className="divider"><span>or continue with</span></div>

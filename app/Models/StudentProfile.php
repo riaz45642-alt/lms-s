@@ -9,7 +9,7 @@ class StudentProfile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'class_id', 'student_number', 'date_of_birth', 'grade_level'];
+    protected $fillable = ['user_id', 'parent_id', 'class_id', 'student_number', 'date_of_birth', 'grade_level'];
 
     protected $casts = ['date_of_birth' => 'date'];
 
@@ -23,11 +23,9 @@ class StudentProfile extends Model
         return $this->belongsTo(SchoolClass::class, 'class_id');
     }
 
-    public function parents()
+    public function parent()
     {
-        return $this->belongsToMany(ParentProfile::class, 'parent_student', 'student_id', 'parent_id')
-            ->withPivot('relationship')
-            ->withTimestamps();
+        return $this->belongsTo(ParentProfile::class, 'parent_id');
     }
 
     public function teachers()

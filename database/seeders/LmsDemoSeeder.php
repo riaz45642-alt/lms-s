@@ -41,10 +41,9 @@ class LmsDemoSeeder extends Seeder
             );
             $student = StudentProfile::updateOrCreate(
                 ['user_id' => $studentUser->id],
-                ['student_number' => 'S-DEMO-001', 'grade_level' => 'Year 4']
+                ['parent_id' => $parent->id, 'student_number' => 'S-DEMO-001', 'grade_level' => 'Year 4']
             );
 
-            $parent->students()->syncWithoutDetaching([$student->id => ['relationship' => 'Guardian']]);
             $teacher->students()->syncWithoutDetaching([$student->id]);
         });
     }

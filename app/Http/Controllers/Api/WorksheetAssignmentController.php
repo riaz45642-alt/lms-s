@@ -15,7 +15,7 @@ class WorksheetAssignmentController extends Controller
     {
         $user = $request->user();
         $query = WorksheetAssignment::with([
-            'worksheet.teacher.user',
+            'worksheet.creator',
             'student.user',
             'assigner',
             'submission.review.report',
@@ -26,7 +26,7 @@ class WorksheetAssignmentController extends Controller
         } elseif ($user->hasRole('parent')) {
             $query->whereIn('student_id', $user->parentProfile?->students()->pluck('student_profiles.id') ?? []);
         } elseif ($user->hasRole('teacher')) {
-            $query->whereHas('worksheet', fn ($q) => $q->where('teacher_id', $user->teacherProfile?->id));
+            $query->whereHas('student.teachers', fn ($q) => $q->whereKey($user->teacherProfile?->id));
         }
 
         return $query
@@ -44,9 +44,6 @@ class WorksheetAssignmentController extends Controller
         if ($user->hasRole('parent')) {
             abort_unless($user->parentProfile?->students()->whereKey($student->id)->exists(), 403, 'This student is not linked to your account.');
             abort_unless($worksheet->is_published, 422, 'Parents can assign only published worksheets.');
-        } elseif ($user->hasRole('teacher')) {
-            abort_unless($worksheet->teacher_id === $user->teacherProfile?->id, 403, 'Teachers can assign only their own worksheets.');
-            abort_unless($user->teacherProfile?->students()->whereKey($student->id)->exists(), 403, 'This student is not linked to your account.');
         }
 
         $assignment = WorksheetAssignment::create([
@@ -63,7 +60,7 @@ class WorksheetAssignmentController extends Controller
     {
         $this->authorizeAccess($request, $worksheetAssignment);
 
-        return $worksheetAssignment->load('worksheet.teacher.user', 'student.user', 'assigner', 'submission.review.report');
+        return $worksheetAssignment->load('worksheet.creator', 'student.user', 'assigner', 'submission.review.report');
     }
 
     private function authorizeAccess(Request $request, WorksheetAssignment $assignment): void
@@ -72,7 +69,7 @@ class WorksheetAssignmentController extends Controller
         $allowed = $user->hasRole('admin')
             || ($user->hasRole('student') && $assignment->student_id === $user->studentProfile?->id)
             || ($user->hasRole('parent') && $user->parentProfile?->students()->whereKey($assignment->student_id)->exists())
-            || ($user->hasRole('teacher') && $assignment->worksheet->teacher_id === $user->teacherProfile?->id);
+            || ($user->hasRole('teacher') && $user->teacherProfile?->students()->whereKey($assignment->student_id)->exists());
 
         abort_unless($allowed, 403);
     }

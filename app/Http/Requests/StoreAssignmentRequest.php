@@ -8,7 +8,7 @@ class StoreAssignmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole('parent', 'teacher', 'admin') ?? false;
+        return $this->user()?->hasRole('parent', 'admin') ?? false;
     }
 
     public function rules(): array

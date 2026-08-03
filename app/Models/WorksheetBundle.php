@@ -9,13 +9,18 @@ class WorksheetBundle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['teacher_id', 'title', 'description', 'is_published'];
+    protected $fillable = ['created_by', 'teacher_id', 'title', 'description', 'is_published'];
 
     protected $casts = ['is_published' => 'boolean'];
 
     public function teacher()
     {
         return $this->belongsTo(TeacherProfile::class, 'teacher_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function worksheets()

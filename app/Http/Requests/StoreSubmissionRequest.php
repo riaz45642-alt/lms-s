@@ -8,7 +8,7 @@ class StoreSubmissionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole('parent', 'admin') ?? false;
+        return $this->user()?->hasRole('parent', 'student', 'admin') ?? false;
     }
 
     public function rules(): array

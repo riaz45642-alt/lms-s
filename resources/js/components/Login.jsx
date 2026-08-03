@@ -1,17 +1,30 @@
 import { useState } from 'react'
+import { useApp } from '../context/AppContext'
+import { errorMessage } from '../services/api'
 import './Auth.css'
 
 export default function Login({ onBack, onSwitch }) {
+  const { login } = useApp()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
+  const [remember, setRemember] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Login data:', form)
+    setError(''); setLoading(true)
+    try {
+      const data = await login(form, remember)
+      window.history.replaceState({}, '', data.portal_path || '/dashboard')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    } catch (requestError) {
+      setError(errorMessage(requestError))
+    } finally { setLoading(false) }
   }
 
   return (
@@ -44,6 +57,7 @@ export default function Login({ onBack, onSwitch }) {
         <p className="sub">Access your worksheets, progress reports and saved resources.</p>
 
         <form onSubmit={handleSubmit}>
+          {error && <div className="auth-error" role="alert">{error}</div>}
           <label className="field">
             <span>Email address</span>
             <input
@@ -75,12 +89,12 @@ export default function Login({ onBack, onSwitch }) {
 
           <div className="row-between">
             <label className="checkbox">
-              <input type="checkbox" /> Remember me
+              <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember me
             </label>
             <a className="link" href="#">Forgot password?</a>
           </div>
 
-          <button type="submit" className="btn btn-primary auth-submit">Log in</button>
+          <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>{loading ? 'Logging in...' : 'Log in'}</button>
         </form>
 
         <div className="divider"><span>or continue with</span></div>

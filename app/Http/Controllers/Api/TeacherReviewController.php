@@ -15,7 +15,7 @@ class TeacherReviewController extends Controller
     {
         $query = TeacherReview::with([
             'teacher.user',
-            'submission.assignment.worksheet',
+            'submission.assignment.worksheet.creator',
             'submission.assignment.student.user',
             'report',
         ]);
@@ -35,9 +35,9 @@ class TeacherReviewController extends Controller
         $teacher = $request->user()->teacherProfile;
         abort_unless($teacher, 422, 'A teacher profile is required.');
         abort_unless(
-            $worksheetSubmission->assignment->worksheet->teacher_id === $teacher->id,
+            $teacher->students()->whereKey($worksheetSubmission->assignment->student_id)->exists(),
             403,
-            'Only the worksheet owner can review this submission.'
+            'Only a teacher linked to this student can review the submission.'
         );
 
         $review = $service->save($worksheetSubmission, $teacher, $request->validated());

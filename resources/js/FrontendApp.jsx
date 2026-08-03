@@ -18,6 +18,7 @@ import ScrollProgress from './components/ScrollProgress'
 import FeatureJourney from './components/FeatureJourney'
 import { RouterProvider, useRouter } from './router/Router'
 import { AppProvider } from './context/AppContext'
+import { useApp } from './context/AppContext'
 import Worksheets from './pages/Worksheets'
 import WorksheetDetails from './pages/WorksheetDetails'
 import Pricing from './pages/Pricing'
@@ -26,6 +27,9 @@ import Help from './pages/Help'
 import Activities from './pages/Activities'
 import ActivityDetails from './pages/ActivityDetails'
 import { NotFound } from './pages/NotFound'
+import PortalDashboard from './pages/PortalDashboard'
+import AccountProfile from './pages/AccountProfile'
+import AdminWorksheets from './pages/AdminWorksheets'
 import './App.css'
 
 const HOME_SECTIONS = [
@@ -57,6 +61,7 @@ function HomePage() {
 function AppShell() {
   const [authView, setAuthView] = useState(null)
   const { path, navigate } = useRouter()
+  const { user, authLoading } = useApp()
 
   const goHome = () => {
     setAuthView(null)
@@ -67,10 +72,12 @@ function AppShell() {
     setAuthView(null)
   }
 
-  if (authView === 'login') {
+  if (authLoading) return <main className="portal"><p>Restoring your session...</p></main>
+
+  if (authView === 'login' && !user) {
     return <Login onBack={goHome} onSwitch={() => setAuthView('signup')} />
   }
-  if (authView === 'signup') {
+  if (authView === 'signup' && !user) {
     return <Signup onBack={goHome} onSwitch={() => setAuthView('login')} />
   }
 
@@ -78,12 +85,23 @@ function AppShell() {
   const activityMatch = path.match(/^\/activities\/([^/]+)$/)
 
   let Page = null
+  const protectedPage = (content, roles = []) => {
+    if (!user) return <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
+    if (roles.length && !roles.includes(user.role)) return <NotFound />
+    return content
+  }
   if (path === '/') {
     Page = <HomePage />
   } else if (worksheetMatch) {
-    Page = <WorksheetDetails worksheetId={decodeURIComponent(worksheetMatch[1])} />
+    Page = protectedPage(<WorksheetDetails worksheetId={decodeURIComponent(worksheetMatch[1])} />)
   } else if (path === '/worksheets') {
-    Page = <Worksheets />
+    Page = protectedPage(<Worksheets />)
+  } else if (['/dashboard', '/admin', '/teacher', '/parent', '/student'].includes(path)) {
+    Page = protectedPage(<PortalDashboard />)
+  } else if (path === '/profile') {
+    Page = protectedPage(<AccountProfile />)
+  } else if (path === '/admin/worksheets') {
+    Page = protectedPage(<AdminWorksheets />, ['admin'])
   } else if (activityMatch) {
     Page = <ActivityDetails activityId={decodeURIComponent(activityMatch[1])} />
   } else if (path === '/activities') {
@@ -94,15 +112,15 @@ function AppShell() {
     Page = <Help />
   } else if (path === '/about') {
     Page = <About />
-  } else if (path === '/login') {
+  } else if (path === '/login' && !user) {
     Page = <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
-  } else if (path === '/signup') {
+  } else if (path === '/signup' && !user) {
     Page = <Signup onBack={goHome} onSwitch={() => navigate('/login')} />
   } else {
     Page = <NotFound />
   }
 
-  if (path === '/login' || path === '/signup') {
+  if ((path === '/login' || path === '/signup') && !user) {
     return Page
   }
 

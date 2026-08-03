@@ -8,7 +8,7 @@ class StoreBundleRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasRole('teacher', 'admin') ?? false;
+        return $this->user()?->hasRole('admin') ?? false;
     }
 
     public function rules(): array

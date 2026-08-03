@@ -26,7 +26,15 @@ class AuthController extends Controller
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'phone' => ['nullable', 'string', 'max:30'],
             'specialization' => ['nullable', 'string', 'max:255'],
+            'parent_id' => ['nullable', 'integer', 'exists:parent_profiles,id'],
+            'teacher_id' => ['nullable', 'integer', 'exists:teacher_profiles,id'],
         ]);
+
+        if ($data['role'] !== 'student' && (isset($data['parent_id']) || isset($data['teacher_id']))) {
+            throw ValidationException::withMessages([
+                'role' => ['Parent ID and Teacher ID can only be used when registering a student.'],
+            ]);
+        }
 
         $user = DB::transaction(function () use ($data) {
             $user = User::create([
@@ -41,10 +49,15 @@ class AuthController extends Controller
                 'teacher' => TeacherProfile::create(['user_id' => $user->id, 'specialization' => $data['specialization'] ?? null]),
                 'student' => StudentProfile::create([
                     'user_id' => $user->id,
+                    'parent_id' => $data['parent_id'] ?? null,
                     'grade_level' => $data['grade_level'] ?? null,
                     'date_of_birth' => $data['date_of_birth'] ?? null,
                 ]),
             };
+
+            if ($data['role'] === 'student' && isset($data['teacher_id'])) {
+                $user->studentProfile->teachers()->attach($data['teacher_id']);
+            }
 
             return $user;
         });
@@ -84,6 +97,8 @@ class AuthController extends Controller
                 'roles.permissions',
                 'parentProfile',
                 'teacherProfile',
+                'studentProfile.parent.user',
+                'studentProfile.teachers.user',
                 'studentProfile.schoolClass'
             ),
         ];

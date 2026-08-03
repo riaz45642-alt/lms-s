@@ -21,7 +21,8 @@ class RbacAcademicArchitectureTest extends TestCase
         $teacher = User::factory()->create(['role' => 'teacher']);
 
         $this->assertTrue($teacher->hasRole('teacher'));
-        $this->assertTrue($teacher->hasPermission('worksheets.create'));
+        $this->assertFalse($teacher->hasPermission('worksheets.create'));
+        $this->assertFalse($teacher->hasPermission('worksheets.manage'));
         $this->assertSame('/teacher', $teacher->portalPath());
         $this->assertDatabaseHas('user_roles', ['user_id' => $teacher->id]);
 
@@ -29,6 +30,7 @@ class RbacAcademicArchitectureTest extends TestCase
 
         $this->assertTrue($teacher->hasRole('admin'));
         $this->assertTrue($teacher->hasPermission('rbac.manage'));
+        $this->assertTrue($teacher->hasPermission('worksheets.manage'));
         $this->assertSame('/admin', $teacher->portalPath());
     }
 

@@ -19,6 +19,8 @@ class PerformanceReportController extends Controller
             $query->whereIn('student_id', $user->parentProfile?->students()->pluck('student_profiles.id') ?? []);
         } elseif ($user->hasRole('teacher')) {
             $query->whereHas('review', fn ($q) => $q->where('teacher_id', $user->teacherProfile?->id));
+        } elseif (! $user->hasRole('admin')) {
+            $query->whereRaw('1 = 0');
         }
 
         return $query->latest()->paginate(20);

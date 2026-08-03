@@ -1,0 +1,15 @@
+.portal { width: min(1120px, calc(100% - 2rem)); margin: 7rem auto 4rem; color: #241a4d; }
+.portal.narrow { max-width: 680px; }
+.portal-head, .assignment-row, .report-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.portal-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.portal-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 1rem; margin: 2rem 0; }
+.portal-stats article, .portal-section, .profile-form, .worksheet-form { padding: 1.25rem; border: 1px solid #e8e2fa; border-radius: 16px; background: white; }
+.portal-stats strong { display: block; font-size: 2rem; }.portal-stats span { text-transform: capitalize; color: #675f7d; }
+.portal-section { margin-top: 1.25rem; }.assignment-row, .report-row { padding: 1rem 0; border-top: 1px solid #eee9fa; flex-wrap: wrap; }
+.assignment-row h3 { margin: 0 0 .25rem; }.assignment-row p { margin: 0; }.evaluation { width: 100%; background: #f3f0ff; padding: .75rem; border-radius: 8px; }
+.review-form, .worksheet-form { display: flex; gap: .6rem; flex-wrap: wrap; }.review-form input, .worksheet-form input, .worksheet-form textarea, .profile-form input { padding: .7rem; border: 1px solid #d8d0ed; border-radius: 8px; }
+.review-form select { padding: .7rem; border: 1px solid #d8d0ed; border-radius: 8px; background: white; }
+.worksheet-form { margin: 1.5rem 0; }.worksheet-form textarea { min-width: 280px; }.profile-form { display: grid; gap: 1rem; }.profile-form label { display: grid; gap: .35rem; }
+.portal-error { padding: .8rem 1rem; margin: 1rem 0; border-radius: 10px; background: #fff0f0; color: #a32626; }.upload-control { display: grid; gap: .4rem; font-weight: 600; }
+.portal-search { width: min(520px,100%); padding: .8rem 1rem; border: 1px solid #d8d0ed; border-radius: 10px; }
+@media (max-width: 700px) { .portal-head { align-items: flex-start; flex-direction: column; } }

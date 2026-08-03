@@ -179,3 +179,11 @@
   .auth-card{padding:28px 22px 24px}
   .auth-card h1{font-size:21px}
 }
+.auth-error {
+  margin: 0 0 1rem;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #a32626;
+  font-size: .9rem;
+}

@@ -20,16 +20,16 @@ class ManualWorksheetWorkflowTest extends TestCase
     {
         Storage::fake('local');
 
+        $adminUser = User::factory()->create(['role' => 'admin']);
         $teacherUser = User::factory()->create(['role' => 'teacher']);
         $teacher = TeacherProfile::create(['user_id' => $teacherUser->id]);
         $parentUser = User::factory()->create(['role' => 'parent']);
         $parent = ParentProfile::create(['user_id' => $parentUser->id]);
         $studentUser = User::factory()->create(['role' => 'student']);
-        $student = StudentProfile::create(['user_id' => $studentUser->id, 'grade_level' => 'Year 4']);
+        $student = StudentProfile::create(['user_id' => $studentUser->id, 'parent_id' => $parent->id, 'grade_level' => 'Year 4']);
         $teacher->students()->attach($student);
-        $parent->students()->attach($student, ['relationship' => 'Guardian']);
 
-        Sanctum::actingAs($teacherUser);
+        Sanctum::actingAs($adminUser);
         $worksheetId = $this->post('/api/worksheets', [
             'title' => 'Fractions Practice',
             'subject' => 'Maths',
@@ -85,6 +85,7 @@ class ManualWorksheetWorkflowTest extends TestCase
             'user_id' => User::factory()->create(['role' => 'teacher'])->id,
         ]);
         $worksheet = $teacher->worksheets()->create([
+            'created_by' => $teacher->user_id,
             'title' => 'Private worksheet',
             'subject' => 'Maths',
             'grade_level' => 'Year 4',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from '../router/Router'
+import { useApp } from '../context/AppContext'
 import './Navbar.css'
 
 const LINKS = [
@@ -18,6 +19,7 @@ export default function Navbar({ onNavigate, onSectionSelect, onLogoClick }) {
     typeof window !== 'undefined' ? window.location.pathname : '/'
   )
   const { navigate } = useRouter()
+  const { user, logout } = useApp()
 
   // Keep activePath in sync with browser back/forward buttons
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function Navbar({ onNavigate, onSectionSelect, onLogoClick }) {
   }
 
   const isActive = (to) => activePath === to
+  const handleLogout = async () => { await logout(); go('/') }
 
   return (
     <header className={scrolled ? 'scrolled' : ''}>
@@ -82,16 +85,20 @@ export default function Navbar({ onNavigate, onSectionSelect, onLogoClick }) {
             </a>
           ))}
 
-          <div className="nav-cta nav-cta-mobile">
+          {!user && <div className="nav-cta nav-cta-mobile">
             <button className="login" onClick={() => handleAuth('login')}>Log in</button>
             <button className="btn btn-primary" onClick={() => handleAuth('signup')}>Sign up</button>
-          </div>
+          </div>}
+          {user && <div className="nav-cta nav-cta-mobile">
+            <button className="login" onClick={() => go(user.role === 'admin' ? '/admin' : `/${user.role}`)}>Dashboard</button>
+            <button className="btn btn-primary" onClick={handleLogout}>Log out</button>
+          </div>}
         </nav>
 
-        <div className="nav-cta nav-cta-desktop">
+        {!user ? <div className="nav-cta nav-cta-desktop">
           <button className="login" onClick={() => handleAuth('login')}>Log in</button>
           <button className="btn btn-primary" onClick={() => handleAuth('signup')}>Sign up</button>
-        </div>
+        </div> : <div className="nav-cta nav-cta-desktop"><button className="login" onClick={() => go(user.role === 'admin' ? '/admin' : `/${user.role}`)}>Dashboard</button><button className="btn btn-primary" onClick={handleLogout}>Log out</button></div>}
 
         <button
           className={`burger${menuOpen ? ' open' : ''}`}

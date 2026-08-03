@@ -11,7 +11,8 @@ return new class extends Migration
     {
         Schema::create('worksheets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_id')->constrained('teacher_profiles')->restrictOnDelete();
+            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('teacher_id')->nullable()->constrained('teacher_profiles')->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('subject', 100)->index();
@@ -30,7 +31,8 @@ return new class extends Migration
 
         Schema::create('worksheet_bundles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_id')->constrained('teacher_profiles')->cascadeOnDelete();
+            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('teacher_id')->nullable()->constrained('teacher_profiles')->nullOnDelete();
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('is_published')->default(false)->index();

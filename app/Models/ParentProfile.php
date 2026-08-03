@@ -18,8 +18,6 @@ class ParentProfile extends Model
 
     public function students()
     {
-        return $this->belongsToMany(StudentProfile::class, 'parent_student', 'parent_id', 'student_id')
-            ->withPivot('relationship')
-            ->withTimestamps();
+        return $this->hasMany(StudentProfile::class, 'parent_id');
     }
 }

@@ -65,6 +65,7 @@ return new class extends Migration
             ['Manage subjects', 'subjects.manage', 'academics'],
             ['View all reports', 'reports.view-all', 'reports'],
             ['Create worksheets', 'worksheets.create', 'worksheets'],
+            ['Manage worksheets', 'worksheets.manage', 'worksheets'],
             ['Assign worksheets', 'assignments.create', 'assignments'],
             ['Review submissions', 'submissions.review', 'submissions'],
             ['Generate performance reports', 'reports.create', 'reports'],
@@ -91,7 +92,7 @@ return new class extends Migration
         $grants = [
             'admin' => array_keys($permissionIds->all()),
             'teacher' => [
-                'classes.manage', 'worksheets.create', 'assignments.create',
+                'classes.manage',
                 'submissions.review', 'reports.create', 'messages.send',
             ],
             'student' => ['submissions.create', 'progress.view-own', 'messages.send'],

@@ -31,19 +31,11 @@ return new class extends Migration
         Schema::create('student_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignId('parent_id')->nullable()->index()->constrained('parent_profiles')->nullOnDelete();
             $table->string('student_number', 50)->nullable()->unique();
             $table->date('date_of_birth')->nullable();
             $table->string('grade_level', 50)->nullable()->index();
             $table->timestamps();
-        });
-
-        Schema::create('parent_student', function (Blueprint $table) {
-            $table->foreignId('parent_id')->constrained('parent_profiles')->cascadeOnDelete();
-            $table->foreignId('student_id')->constrained('student_profiles')->cascadeOnDelete();
-            $table->string('relationship', 50)->nullable();
-            $table->timestamps();
-            $table->primary(['parent_id', 'student_id']);
-            $table->index(['student_id', 'parent_id']);
         });
 
         Schema::create('teacher_student', function (Blueprint $table) {
@@ -62,7 +54,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('teacher_student');
-        Schema::dropIfExists('parent_student');
         Schema::dropIfExists('student_profiles');
         Schema::dropIfExists('teacher_profiles');
         Schema::dropIfExists('parent_profiles');
