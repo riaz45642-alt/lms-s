@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
+import { useRouter } from '../router/Router'
 import './Auth.css'
 
 export default function Login({ onBack, onSwitch }) {
+  const { navigate } = useRouter()
   const { login } = useApp()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
@@ -20,7 +22,7 @@ export default function Login({ onBack, onSwitch }) {
     setError(''); setLoading(true)
     try {
       const data = await login(form, remember)
-      window.history.replaceState({}, '', data.portal_path || '/dashboard')
+      window.history.replaceState({}, '', data.user.email_verified_at ? (data.portal_path || '/dashboard') : '/verify-email')
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (requestError) {
       setError(errorMessage(requestError))
@@ -91,7 +93,7 @@ export default function Login({ onBack, onSwitch }) {
             <label className="checkbox">
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember me
             </label>
-            <a className="link" href="#">Forgot password?</a>
+            <button type="button" className="link link-btn" onClick={() => navigate('/forgot-password')}>Forgot password?</button>
           </div>
 
           <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>{loading ? 'Logging in...' : 'Log in'}</button>
