@@ -7,6 +7,7 @@ use App\Models\ParentProfile;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -61,6 +62,8 @@ class AuthController extends Controller
 
             return $user;
         });
+
+        event(new Registered($user));
 
         return response()->json($this->tokenPayload($user), 201);
     }

@@ -30,6 +30,9 @@ import { NotFound } from './pages/NotFound'
 import PortalDashboard from './pages/PortalDashboard'
 import AccountProfile from './pages/AccountProfile'
 import AdminWorksheets from './pages/AdminWorksheets'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+import VerifyEmail from './pages/VerifyEmail'
 import './App.css'
 
 const HOME_SECTIONS = [
@@ -87,6 +90,7 @@ function AppShell() {
   let Page = null
   const protectedPage = (content, roles = []) => {
     if (!user) return <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
+    if (!user.email_verified_at) return <VerifyEmail />
     if (roles.length && !roles.includes(user.role)) return <NotFound />
     return content
   }
@@ -112,6 +116,12 @@ function AppShell() {
     Page = <Help />
   } else if (path === '/about') {
     Page = <About />
+  } else if (path === '/forgot-password') {
+    Page = <ForgotPassword />
+  } else if (path === '/reset-password') {
+    Page = <ResetPassword />
+  } else if (path === '/verify-email') {
+    Page = <VerifyEmail />
   } else if (path === '/login' && !user) {
     Page = <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
   } else if (path === '/signup' && !user) {
@@ -120,7 +130,7 @@ function AppShell() {
     Page = <NotFound />
   }
 
-  if ((path === '/login' || path === '/signup') && !user) {
+  if (['/login', '/signup', '/forgot-password', '/reset-password', '/verify-email'].includes(path)) {
     return Page
   }
 

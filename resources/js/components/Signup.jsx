@@ -22,7 +22,7 @@ export default function Signup({ onBack, onSwitch }) {
       if (!payload.parent_id) delete payload.parent_id
       if (!payload.teacher_id) delete payload.teacher_id
       const data = await register(payload)
-      window.history.replaceState({}, '', data.portal_path || '/dashboard')
+      window.history.replaceState({}, '', data.user.email_verified_at ? (data.portal_path || '/dashboard') : '/verify-email')
       window.dispatchEvent(new PopStateEvent('popstate'))
     } catch (requestError) {
       setError(errorMessage(requestError))
