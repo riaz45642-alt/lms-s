@@ -18,6 +18,7 @@ class AuthenticationRecoveryTest extends TestCase
     public function test_forgot_password_sends_a_reset_link_without_revealing_accounts(): void
     {
         Notification::fake();
+        config(['app.frontend_url' => 'https://frontend.example']);
         $user = User::factory()->create();
 
         $this->postJson('/api/auth/forgot-password', ['email' => $user->email])
@@ -28,7 +29,14 @@ class AuthenticationRecoveryTest extends TestCase
             ->assertOk()
             ->assertJsonPath('message', 'If an account exists for that email, a password reset link has been sent.');
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
+            $url = $notification->toMail($user)->actionUrl;
+            parse_str(parse_url($url, PHP_URL_QUERY), $query);
+
+            return str_starts_with($url, 'https://frontend.example/reset-password?')
+                && $query['token'] === $notification->token
+                && $query['email'] === $user->email;
+        });
     }
 
     public function test_password_can_be_reset_once_with_a_valid_token(): void

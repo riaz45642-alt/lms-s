@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
-import { useRouter } from '../router/Router'
 import './Auth.css'
 
-export default function Login({ onBack, onSwitch }) {
-  const { navigate } = useRouter()
+export default function Login({ onBack, onSwitch, onForgotPassword }) {
   const { login } = useApp()
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
@@ -93,7 +91,7 @@ export default function Login({ onBack, onSwitch }) {
             <label className="checkbox">
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember me
             </label>
-            <button type="button" className="link link-btn" onClick={() => navigate('/forgot-password')}>Forgot password?</button>
+            <button type="button" className="link link-btn" onClick={onForgotPassword}>Forgot password?</button>
           </div>
 
           <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>{loading ? 'Logging in...' : 'Log in'}</button>

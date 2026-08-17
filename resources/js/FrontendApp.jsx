@@ -75,10 +75,15 @@ function AppShell() {
     setAuthView(null)
   }
 
+  const openForgotPassword = () => {
+    setAuthView(null)
+    navigate('/forgot-password')
+  }
+
   if (authLoading) return <main className="portal"><p>Restoring your session...</p></main>
 
   if (authView === 'login' && !user) {
-    return <Login onBack={goHome} onSwitch={() => setAuthView('signup')} />
+    return <Login onBack={goHome} onSwitch={() => setAuthView('signup')} onForgotPassword={openForgotPassword} />
   }
   if (authView === 'signup' && !user) {
     return <Signup onBack={goHome} onSwitch={() => setAuthView('login')} />
@@ -89,7 +94,7 @@ function AppShell() {
 
   let Page = null
   const protectedPage = (content, roles = []) => {
-    if (!user) return <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
+    if (!user) return <Login onBack={goHome} onSwitch={() => navigate('/signup')} onForgotPassword={openForgotPassword} />
     if (!user.email_verified_at) return <VerifyEmail />
     if (roles.length && !roles.includes(user.role)) return <NotFound />
     return content
@@ -123,7 +128,7 @@ function AppShell() {
   } else if (path === '/verify-email') {
     Page = <VerifyEmail />
   } else if (path === '/login' && !user) {
-    Page = <Login onBack={goHome} onSwitch={() => navigate('/signup')} />
+    Page = <Login onBack={goHome} onSwitch={() => navigate('/signup')} onForgotPassword={openForgotPassword} />
   } else if (path === '/signup' && !user) {
     Page = <Signup onBack={goHome} onSwitch={() => navigate('/login')} />
   } else {
