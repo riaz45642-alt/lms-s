@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
+import { isAuth0Configured } from '../services/auth0Config'
+import GoogleButton from './GoogleButton'
 import './Auth.css'
 
 export default function Signup({ onBack, onSwitch }) {
@@ -134,12 +136,15 @@ export default function Signup({ onBack, onSwitch }) {
           <button type="submit" className="btn btn-gold auth-submit" disabled={loading}>{loading ? 'Creating account...' : `Sign up as ${form.role}`}</button>
         </form>
 
-        <div className="divider"><span>or continue with</span></div>
+        {isAuth0Configured && (
+          <>
+            <div className="divider"><span>or continue with</span></div>
 
-        <div className="social-row">
-          <button className="btn btn-ghost social-btn">Google</button>
-         
-        </div>
+            <div className="social-row">
+              <GoogleButton label="Sign up with Google" />
+            </div>
+          </>
+        )}
 
         <p className="switch-line">
           Already have an account? <button type="button" className="link link-btn" onClick={onSwitch}>Log in</button>

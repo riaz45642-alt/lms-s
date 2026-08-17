@@ -30,6 +30,8 @@ import { NotFound } from './pages/NotFound'
 import PortalDashboard from './pages/PortalDashboard'
 import AccountProfile from './pages/AccountProfile'
 import AdminWorksheets from './pages/AdminWorksheets'
+import AuthCallback from './pages/AuthCallback'
+import { AUTH0_REDIRECT_PATH, isAuth0Configured } from './services/auth0Config'
 import './App.css'
 
 const HOME_SECTIONS = [
@@ -71,6 +73,10 @@ function AppShell() {
   const handleSectionSelect = () => {
     setAuthView(null)
   }
+
+  // The Auth0 redirect must be handled before anything else: it owns its own
+  // full-screen flow and does not depend on a restored Sanctum session.
+  if (isAuth0Configured && path === AUTH0_REDIRECT_PATH) return <AuthCallback />
 
   if (authLoading) return <main className="portal"><p>Restoring your session...</p></main>
 

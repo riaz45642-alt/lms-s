@@ -53,6 +53,17 @@ export function AppProvider({ children }) {
     return data
   }, [])
 
+  // Trades an Auth0 access token for a Sanctum token. A first-time visitor comes
+  // back with { needs_role: true } instead, because Auth0 cannot tell us whether
+  // the person is a parent, teacher or student.
+  const loginWithAuth0Token = useCallback(async (accessToken, extra = {}) => {
+    const { data } = await api.post('/auth/auth0/exchange', { access_token: accessToken, ...extra })
+    if (data.needs_role) return data
+    saveToken(data.token, true)
+    setUser(data.user)
+    return data
+  }, [])
+
   const logout = useCallback(async () => {
     try { await api.post('/auth/logout') } finally { clearToken(); setUser(null) }
   }, [])
@@ -65,10 +76,11 @@ export function AppProvider({ children }) {
 
   const value = useMemo(() => ({
     user, authLoading, login, register, logout, refreshUser, updateProfile, api,
+    loginWithAuth0Token,
     favorites, toggleFavorite,
     recentlyViewed, addRecentlyViewed,
     recentlyDownloaded, addRecentlyDownloaded,
-  }), [user, authLoading, login, register, logout, refreshUser, updateProfile, favorites, recentlyViewed, recentlyDownloaded, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded])
+  }), [user, authLoading, login, register, logout, refreshUser, updateProfile, loginWithAuth0Token, favorites, recentlyViewed, recentlyDownloaded, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded])
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>
 }

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
+import { isAuth0Configured } from '../services/auth0Config'
+import GoogleButton from './GoogleButton'
 import './Auth.css'
 
 export default function Login({ onBack, onSwitch }) {
@@ -97,12 +99,15 @@ export default function Login({ onBack, onSwitch }) {
           <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>{loading ? 'Logging in...' : 'Log in'}</button>
         </form>
 
-        <div className="divider"><span>or continue with</span></div>
+        {isAuth0Configured && (
+          <>
+            <div className="divider"><span>or continue with</span></div>
 
-        <div className="social-row">
-          <button className="btn btn-ghost social-btn">Google</button>
-          
-        </div>
+            <div className="social-row">
+              <GoogleButton />
+            </div>
+          </>
+        )}
 
         <p className="switch-line">
           Don't have an account? <button type="button" className="link link-btn" onClick={onSwitch}>Sign up</button>

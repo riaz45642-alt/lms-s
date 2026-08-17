@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'auth0' => [
+        'domain' => env('AUTH0_DOMAIN'),
+        'audience' => env('AUTH0_AUDIENCE'),
+    ],
+
 ];
