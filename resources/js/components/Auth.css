@@ -4,20 +4,20 @@
   align-items:center;
   justify-content:center;
   padding:60px 20px;
-  background:var(--sky-soft);
+  background:radial-gradient(circle at 12% 14%,rgba(255,205,105,.38),transparent 25rem),radial-gradient(circle at 88% 78%,rgba(108,76,241,.2),transparent 30rem),#f7f5fc;
   position:relative;
   overflow:hidden;
 }
-.auth .planet{position:absolute;font-size:32px;opacity:.55}
+.auth .planet{position:absolute;display:grid;place-items:center;width:72px;height:72px;border-radius:24px;background:#fff;font-size:26px;opacity:.72;box-shadow:0 16px 36px rgba(36,26,77,.1);animation:authFloat 5s ease-in-out infinite}.auth .planet:last-of-type{animation-delay:-2.3s}
 
 .auth-card{
   width:100%;
   max-width:440px;
   background:#fff;
   border:1px solid var(--line);
-  border-radius:20px;
-  padding:36px 34px 30px;
-  box-shadow:var(--shadow-lg);
+  border-radius:28px;
+  padding:40px 38px 34px;
+  box-shadow:0 28px 80px rgba(36,26,77,.16);
   position:relative;
   z-index:2;
 }
@@ -66,14 +66,14 @@
 .field input{
   width:100%;
   border:1.5px solid var(--line);
-  border-radius:12px;
-  padding:12px 14px;
+  border-radius:14px;
+  padding:13px 14px;
   font-family:var(--font-b);
   font-size:14px;
   color:var(--ink);
   outline:none;
   transition:.15s;
-  background:var(--sky-soft);
+  background:#fbfaff;
 }
 .field input:focus{
   border-color:var(--blue);
@@ -157,7 +157,7 @@
   margin-bottom:22px;
   background:var(--sky-soft);
   border:1px solid var(--line);
-  border-radius:30px;
+  border-radius:14px;
   padding:5px;
 }
 .role-tab{
@@ -166,7 +166,7 @@
   font-weight:600;
   font-size:13px;
   padding:9px 0;
-  border-radius:26px;
+  border-radius:10px;
   border:none;
   background:transparent;
   color:var(--navy);
@@ -187,3 +187,4 @@
   color: #a32626;
   font-size: .9rem;
 }
+@keyframes authFloat{50%{transform:translateY(-10px) rotate(4deg)}}

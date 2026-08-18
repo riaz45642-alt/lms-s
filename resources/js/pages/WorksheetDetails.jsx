@@ -17,5 +17,5 @@ export default function WorksheetDetails({ worksheetId }) {
   }
   if (error) return <main className="portal"><div className="portal-error">{error}</div></main>
   if (!item) return <main className="portal"><p>Loading worksheet...</p></main>
-  return <main className="portal narrow"><span className="eyebrow">{item.subject} · {item.grade_level}</span><h1>{item.title}</h1><p>{item.description || 'No description provided.'}</p><p>{item.instructions}</p><button className="btn btn-primary" onClick={download}>Download {item.original_filename}</button></main>
+  return <main className="portal narrow"><section className="worksheet-detail-card"><span className="detail-glyph" aria-hidden="true">▨</span><span className="eyebrow">{item.subject} · {item.grade_level}</span><h1>{item.title}</h1>{item.description && <p>{item.description}</p>}{item.instructions && <div className="instruction-note"><strong>How to begin</strong><p>{item.instructions}</p></div>}<button className="btn btn-primary" onClick={download}>Download worksheet</button><small className="file-name">{item.original_filename}</small></section></main>
 }

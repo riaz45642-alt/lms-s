@@ -9,6 +9,11 @@ const statusLabel = (assignment) => {
   return assignment.status
 }
 
+const countIcon = (name) => ({
+  assignments: '↗', submissions: '✓', students: '◎', worksheets: '□',
+  reports: '✦', teachers: '△', parents: '○', users: '◇',
+}[name] || '✦')
+
 export default function PortalDashboard() {
   const { user, api } = useApp()
   const [dashboard, setDashboard] = useState(null)
@@ -83,10 +88,13 @@ export default function PortalDashboard() {
   const role = dashboard?.role
 
   return <main className="portal">
-    <div className="portal-head"><div><span className="eyebrow">{role} workspace</span><h1>{role === 'teacher' ? 'Student review centre' : role === 'parent' ? 'Your children’s learning' : role === 'student' ? 'My assigned work' : 'Administration overview'}</h1><p>Welcome back, {user.name}.</p></div><div className="portal-actions"><Link className="btn btn-ghost" to="/profile">Profile</Link>{role === 'admin' && <Link className="btn btn-primary" to="/admin/worksheets">Manage worksheets</Link>}</div></div>
+    <section className="portal-hero">
+      <div className="portal-hero-copy"><span className="eyebrow">{role} workspace</span><h1>{role === 'teacher' ? 'Guide every learner forward' : role === 'parent' ? 'See their learning grow' : role === 'student' ? 'Ready for your next win?' : 'Keep learning on track'}</h1><p>Welcome back, {user.name}. {role === 'student' ? 'Pick up where you left off.' : 'Everything important, in one clear view.'}</p><div className="portal-actions"><Link className="btn btn-ghost" to="/profile">My profile</Link>{role === 'admin' && <Link className="btn btn-primary" to="/admin/worksheets">Manage worksheets</Link>}</div></div>
+      <div className="portal-hero-art" aria-hidden="true"><span className="hero-orbit hero-orbit-one"/><span className="hero-orbit hero-orbit-two"/><img src="/assets/learning-hero-3d.png" alt="" /></div>
+    </section>
     {error && <div className="portal-error" role="alert">{error}<button onClick={() => setError('')}>×</button></div>}
     {notice && <div className="portal-notice" role="status">{notice}<button onClick={() => setNotice('')}>×</button></div>}
-    <section className="portal-stats">{Object.entries(dashboard?.counts || {}).map(([name, value]) => <article key={name}><strong>{value}</strong><span>{name.replaceAll('_', ' ')}</span></article>)}</section>
+    <section className="portal-stats">{Object.entries(dashboard?.counts || {}).map(([name, value]) => <article key={name}><i aria-hidden="true">{countIcon(name)}</i><div><strong>{value}</strong><span>{name.replaceAll('_', ' ')}</span></div></article>)}</section>
 
     {role === 'admin' && <section className="portal-section admin-callout"><div><h2>Worksheet administration</h2><p>Upload, edit, publish, replace, and remove learning resources in the dedicated management panel.</p></div><Link className="btn btn-primary" to="/admin/worksheets">Open Admin Panel</Link></section>}
 
