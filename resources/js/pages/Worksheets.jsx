@@ -19,10 +19,10 @@ export default function Worksheets() {
   }, [])
 
   const visible = items.filter((item) => `${item.title} ${item.subject} ${item.grade_level}`.toLowerCase().includes(query.toLowerCase()))
-  return <main className="portal"><span className="eyebrow">Real API catalogue</span><h1>Worksheets available to you</h1>
-    <input className="portal-search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search your worksheets" />
+  return <main className="portal"><div className="catalogue-head"><div><span className="eyebrow">Learning library</span><h1>Pick your next worksheet</h1><p>Find a topic and start learning.</p></div><span className="catalogue-mark" aria-hidden="true">▨</span></div>
+    <label className="search-shell"><span aria-hidden="true">⌕</span><input className="portal-search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search worksheets" /></label>
     {loading && <p>Loading worksheets...</p>}{error && <div className="portal-error">{error}</div>}
-    <section className="portal-stats">{visible.map((item) => <article key={item.id} role="button" tabIndex="0" onClick={() => navigate(`/worksheets/${item.id}`)} onKeyDown={(e) => e.key === 'Enter' && navigate(`/worksheets/${item.id}`)}><strong style={{fontSize:'1.1rem'}}>{item.title}</strong><span>{item.subject} · {item.grade_level}</span></article>)}</section>
+    <section className="worksheet-grid">{visible.map((item, index) => <article className={`worksheet-tile tone-${index % 4}`} key={item.id} role="button" tabIndex="0" onClick={() => navigate(`/worksheets/${item.id}`)} onKeyDown={(e) => e.key === 'Enter' && navigate(`/worksheets/${item.id}`)}><span className="worksheet-glyph" aria-hidden="true">{['∑','Aa','⌘','◎'][index % 4]}</span><div><span className="worksheet-subject">{item.subject}</span><strong>{item.title}</strong><small>{item.grade_level}</small></div><span className="tile-arrow" aria-hidden="true">→</span></article>)}</section>
     {!loading && !visible.length && <p>No worksheets match your access and search.</p>}
   </main>
 }
