@@ -5,6 +5,7 @@ import { buildLessons } from '../data/lmsData'
 import { EmptyState, ListSkeleton } from '../components/ui/UI'
 import './pages.css'
 import './lms.css'
+import { emitCompanionReaction } from '../components/characters/companionEvents'
 
 const TABS = [
   { key: 'notes', label: 'Notes' },
@@ -44,7 +45,10 @@ export default function Learning({ courseId }) {
   const progressPct = Math.round((completedCount / lessons.length) * 100)
 
   const goTo = (i) => { if (i >= 0 && i < lessons.length) setCurrentId(lessons[i].id) }
-  const markComplete = () => setDone((d) => new Set(d).add(current.id))
+  const markComplete = () => {
+    setDone((d) => new Set(d).add(current.id))
+    emitCompanionReaction('celebration', 'Lesson complete—wonderful work!', 1450)
+  }
 
   return (
     <div className="page-section">

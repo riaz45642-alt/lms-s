@@ -3,10 +3,12 @@ import { useRouter } from '../router/Router'
 import { pricingPlans, pricingFaqs } from '../data/pricingData'
 import { PageHero } from '../components/ui/UI'
 import Reveal from '../components/Reveal'
+import { useApp } from '../context/AppContext'
 import './pages.css'
 
 export default function Pricing() {
   const { navigate } = useRouter()
+  const { user } = useApp()
   const [annual, setAnnual] = useState(true)
   const [openFaq, setOpenFaq] = useState(0)
 
@@ -50,7 +52,7 @@ export default function Pricing() {
                   </ul>
                   <button
                     className={`btn ${plan.highlight ? 'btn-primary' : 'btn-ghost'}`}
-                    onClick={() => navigate('/signup')}
+                    onClick={() => navigate(user ? '/billing' : '/signup')}
                   >
                     Choose {plan.title}
                   </button>

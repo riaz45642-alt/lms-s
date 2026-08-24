@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
 import { Link } from '../router/Router'
 import './Portal.css'
+import { emitCompanionReaction } from '../components/characters/companionEvents'
 
 const statusLabel = (assignment) => {
   if (assignment.status === 'assigned' && assignment.due_at && new Date(assignment.due_at) < new Date()) return 'overdue'
@@ -51,6 +52,13 @@ export default function PortalDashboard() {
   }, [selectedStudent])
 
   const visibleAssignments = useMemo(() => selectedStudent === 'all' ? assignments : assignments.filter((item) => String(item.student_id) === String(selectedStudent)), [assignments, selectedStudent])
+  const portalLinks = [
+    ['/courses','Courses'], ['/workbooks','Workbooks'], ['/activities','Activities'], ['/worksheet-bundles','Bundles'],
+    ['/search','Search'], ['/messages','Messages'], ['/notifications','Notifications'], ['/calendar','Calendar'],
+    ['/certificates','Certificates'], ['/bookmarks','Saved'], ['/billing','Plans'],
+    ...(['admin','teacher'].includes(user.role) ? [['/classes','Classes']] : []),
+    ...(user.role === 'admin' ? [['/users','People & roles'],['/subjects','Subjects']] : []),
+  ]
 
   const download = async (url, filename) => {
     try {
@@ -63,14 +71,14 @@ export default function PortalDashboard() {
   const submitWork = async (assignment, file) => {
     if (!file) return
     const body = new FormData(); body.append('file', file)
-    try { await api.post(`/assignments/${assignment.id}/submission`, body); setNotice('Completed worksheet submitted successfully.'); await load() }
+    try { await api.post(`/assignments/${assignment.id}/submission`, body); setNotice('Completed worksheet submitted successfully.'); emitCompanionReaction('celebration', 'Your work is submitted—great job!', 1450); await load() }
     catch (requestError) { setError(errorMessage(requestError)) }
   }
 
   const review = async (assignment, event) => {
     event.preventDefault(); const submissionId = assignment.submission?.id
     const body = Object.fromEntries(new FormData(event.currentTarget)); body.status = 'checked'
-    try { await api.post(`/submissions/${submissionId}/review`, body); setNotice('Final evaluation saved.'); await load() }
+    try { await api.post(`/submissions/${submissionId}/review`, body); setNotice('Final evaluation saved.'); emitCompanionReaction('success', 'Review saved—nicely done!', 1200); await load() }
     catch (requestError) { setError(errorMessage(requestError)) }
   }
 
@@ -88,9 +96,10 @@ export default function PortalDashboard() {
   const role = dashboard?.role
 
   return <main className="portal">
-    <section className="portal-hero">
+    <nav className="portal-shortcuts" aria-label="Learning tools">{portalLinks.map(([to,label])=><Link key={to} to={to}>{label}</Link>)}</nav>
+    <section className="portal-hero" data-companion-section="dashboard-overview">
       <div className="portal-hero-copy"><span className="eyebrow">{role} workspace</span><h1>{role === 'teacher' ? 'Guide every learner forward' : role === 'parent' ? 'See their learning grow' : role === 'student' ? 'Ready for your next win?' : 'Keep learning on track'}</h1><p>Welcome back, {user.name}. {role === 'student' ? 'Pick up where you left off.' : 'Everything important, in one clear view.'}</p><div className="portal-actions"><Link className="btn btn-ghost" to="/profile">My profile</Link>{role === 'admin' && <Link className="btn btn-primary" to="/admin/worksheets">Manage worksheets</Link>}</div></div>
-      <div className="portal-hero-art" aria-hidden="true"><span className="hero-orbit hero-orbit-one"/><span className="hero-orbit hero-orbit-two"/><img src="/assets/learning-hero-3d.png" alt="" /></div>
+      <div className="portal-hero-art" aria-hidden="true" />
     </section>
     {error && <div className="portal-error" role="alert">{error}<button onClick={() => setError('')}>×</button></div>}
     {notice && <div className="portal-notice" role="status">{notice}<button onClick={() => setNotice('')}>×</button></div>}

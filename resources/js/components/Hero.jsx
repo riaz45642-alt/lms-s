@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from '../router/Router'
 import './Hero.css'
 
@@ -20,86 +20,47 @@ function RotatingWord() {
 
 // Counts up from 0 to `target` once it scrolls into view (or shortly after mount,
 // since the hero is already visible on load).
-function CountUp({ target, suffix = '', duration = 1200 }) {
-  const ref = useRef(null)
-  const [value, setValue] = useState(0)
-
-  useEffect(() => {
-    let raf
-    let start
-    const tick = (ts) => {
-      if (start === undefined) start = ts
-      const progress = Math.min(1, (ts - start) / duration)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.round(target * eased))
-      if (progress < 1) raf = requestAnimationFrame(tick)
-    }
-    const timeout = setTimeout(() => { raf = requestAnimationFrame(tick) }, 250)
-    return () => { clearTimeout(timeout); if (raf) cancelAnimationFrame(raf) }
-  }, [target, duration])
-
-  return <b ref={ref}>{value}{suffix}</b>
-}
-
-// Lightweight tilt-on-hover for the bento cards — no library, just pointer math.
-function useTilt() {
-  const onMove = (e) => {
-    const card = e.currentTarget
-    const rect = card.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
-    card.style.setProperty('--rx', `${(-y * 10).toFixed(2)}deg`)
-    card.style.setProperty('--ry', `${(x * 12).toFixed(2)}deg`)
-  }
-  const onLeave = (e) => {
-    e.currentTarget.style.setProperty('--rx', '0deg')
-    e.currentTarget.style.setProperty('--ry', '0deg')
-  }
-  return { onMouseMove: onMove, onMouseLeave: onLeave }
-}
-
 export default function Hero() {
-  const tilt = useTilt()
+  const moveVisual = (event) => {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const x = (event.clientX - bounds.left) / bounds.width - .5
+    const y = (event.clientY - bounds.top) / bounds.height - .5
+    event.currentTarget.style.setProperty('--mx', `${x * 16}px`)
+    event.currentTarget.style.setProperty('--my', `${y * 12}px`)
+    event.currentTarget.style.setProperty('--rx', `${-y * 5}deg`)
+    event.currentTarget.style.setProperty('--ry', `${x * 7}deg`)
+  }
+
+  const resetVisual = (event) => {
+    event.currentTarget.style.setProperty('--mx', '0px')
+    event.currentTarget.style.setProperty('--my', '0px')
+    event.currentTarget.style.setProperty('--rx', '0deg')
+    event.currentTarget.style.setProperty('--ry', '0deg')
+  }
 
   return (
     <section className="hero">
-      <div className="hero-glow" aria-hidden="true"></div>
-      <span className="hero-blob blob-a" aria-hidden="true"></span>
-      <span className="hero-blob blob-b" aria-hidden="true"></span>
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <span className="eyebrow">Worksheets, reimagined</span>
-          <h1>Learning that feels like <RotatingWord />, not paperwork</h1>
-          <p className="lead">Thousands of curriculum-aligned worksheets and activities — ready to print, play and track, all in one bright, friendly place.</p>
+          <span className="hero-pill"><i aria-hidden="true">✦</i> A brighter way to learn</span>
+          <h1>Big ideas start with a little <RotatingWord /></h1>
+          <p className="lead">Worksheets, activities and progress — together in one friendly learning space.</p>
           <div className="hero-actions">
-            <Link className="btn btn-primary" to="/worksheets">Browse worksheets</Link>
-            <Link className="btn btn-ghost" to="/activities">Try an activity</Link>
+            <Link className="btn btn-primary" to="/worksheets">Start learning <span aria-hidden="true">→</span></Link>
+            <Link className="btn btn-ghost" to="/activities">Explore activities</Link>
           </div>
-          <div className="hero-stats">
-            <div><CountUp target={12} suffix="k+" /><span>worksheets</span></div>
-            <div><CountUp target={85} suffix="%" /><span>teacher approval</span></div>
-            <div><b>5–11</b><span>age range</span></div>
+          <div className="hero-trust" aria-label="Platform highlights">
+            <span><b>✓</b> Easy to explore</span>
+            <span><b>✓</b> Progress made clear</span>
           </div>
         </div>
 
-        <div className="hero-bento">
-          <div className="bento-card bento-main" {...tilt}>
-            <span className="bc-em">📐</span>
-            <b>Maths · Shapes & Patterns</b>
-            <span className="bc-tag">Free</span>
-          </div>
-          <div className="bento-card bento-small" {...tilt}>
-            <span className="bc-em">🔤</span>
-            <b>Phonics</b>
-          </div>
-          <div className="bento-card bento-small accent" {...tilt}>
-            <span className="bc-em">🔬</span>
-            <b>Science lab</b>
-          </div>
-          <div className="bento-card bento-wide" {...tilt}>
-            <span className="bc-em">⭐</span>
-            <b>Track progress worksheet by worksheet</b>
-          </div>
+        <div className="hero-visual" aria-hidden="true" onPointerMove={moveVisual} onPointerLeave={resetVisual}>
+          <span className="hero-dot dot-one">Aa</span>
+          <span className="hero-dot dot-two">12</span>
+          <span className="hero-dot dot-three">✓</span>
+          <div className="hero-art-halo"></div>
+          <div className="hero-progress-card"><span>Weekly goal</span><div><i style={{ width: '72%' }}></i></div><strong>Great progress!</strong></div>
         </div>
       </div>
     </section>

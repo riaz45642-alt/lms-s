@@ -29,7 +29,7 @@ export default function Help() {
       </PageHero>
       <div className="page-section tight">
         <div className="wrap">
-          <Reveal className="help-cats" stagger>
+          <Reveal className="help-cats" stagger data-companion-section="help-categories">
             {CATEGORIES.map((c) => (
               <div className="help-cat" key={c.key} onClick={() => setQuery('')}>
                 <div className="hc-em">{c.em}</div>
@@ -38,7 +38,7 @@ export default function Help() {
             ))}
           </Reveal>
 
-          <Reveal><div className="sec-head related-heading"><h2>Frequently asked questions</h2></div></Reveal>
+          <Reveal><div className="sec-head related-heading" data-companion-section="help-faq"><h2>Frequently asked questions</h2></div></Reveal>
           {filtered.length === 0 ? (
             <p style={{ textAlign: 'center', color: 'var(--muted)' }}>No results for "{query}" — try a different search term or contact us below.</p>
           ) : (

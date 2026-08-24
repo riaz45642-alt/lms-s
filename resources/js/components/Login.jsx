@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { errorMessage } from '../services/api'
 import './Auth.css'
 
 export default function Login({ onBack, onSwitch, onForgotPassword }) {
-  const { login } = useApp()
+  const { login, googleLogin } = useApp()
+  const googleButton = useRef(null)
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPass, setShowPass] = useState(false)
   const [remember, setRemember] = useState(false)
@@ -26,6 +27,24 @@ export default function Login({ onBack, onSwitch, onForgotPassword }) {
       setError(errorMessage(requestError))
     } finally { setLoading(false) }
   }
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!clientId) return
+    const render = () => {
+      if (!window.google?.accounts?.id || !googleButton.current) return
+      window.google.accounts.id.initialize({ client_id: clientId, callback: async ({ credential }) => {
+        setError(''); setLoading(true)
+        try { const data = await googleLogin(credential); window.history.replaceState({}, '', data.portal_path || '/dashboard'); window.dispatchEvent(new PopStateEvent('popstate')) }
+        catch (e) { setError(errorMessage(e)) } finally { setLoading(false) }
+      } })
+      googleButton.current.innerHTML = ''
+      window.google.accounts.id.renderButton(googleButton.current, { theme: 'outline', size: 'large', width: 300, text: 'continue_with' })
+    }
+    if (window.google?.accounts?.id) { render(); return }
+    const script = document.createElement('script'); script.src = 'https://accounts.google.com/gsi/client'; script.async = true; script.defer = true; script.onload = render; document.head.appendChild(script)
+    return () => { script.onload = null }
+  }, [googleLogin])
 
   return (
     <section className="auth">
@@ -99,10 +118,7 @@ export default function Login({ onBack, onSwitch, onForgotPassword }) {
 
         <div className="divider"><span>or continue with</span></div>
 
-        <div className="social-row">
-          <button className="btn btn-ghost social-btn">Google</button>
-          
-        </div>
+        {import.meta.env.VITE_GOOGLE_CLIENT_ID ? <div className="social-row" ref={googleButton} aria-label="Continue with Google" /> : <p className="sub">Google sign-in becomes available when its client ID is configured.</p>}
 
         <p className="switch-line">
           Don't have an account? <button type="button" className="link link-btn" onClick={onSwitch}>Sign up</button>
