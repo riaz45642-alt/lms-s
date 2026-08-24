@@ -34,6 +34,25 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
 import './App.css'
+import './experience.css'
+import LearningCompanion from './components/characters/LearningCompanion'
+import CharacterWorld from './components/characters/CharacterWorld'
+import ConnectedLms from './pages/ConnectedLms'
+import GlobalSearch from './pages/GlobalSearch'
+
+function companionPageForPath(path) {
+  if (path === '/') return 'home'
+  if (path === '/help') return 'help'
+  if (path === '/activities') return 'activities'
+  if (/^\/activities\//.test(path)) return 'activity'
+  if (path === '/worksheets') return 'worksheets'
+  if (/^\/worksheets\//.test(path)) return 'worksheet'
+  if (['/dashboard', '/admin', '/teacher', '/parent', '/student'].includes(path)) return 'dashboard'
+  if (path === '/courses') return 'courses'
+  if (/^\/learning\//.test(path)) return 'learning'
+  if (/progress|achievement|certificate/.test(path)) return 'progress'
+  return null
+}
 
 const HOME_SECTIONS = [
   { Comp: Intro, variant: 'up' },
@@ -91,6 +110,9 @@ function AppShell() {
 
   const worksheetMatch = path.match(/^\/worksheets\/([^/]+)$/)
   const activityMatch = path.match(/^\/activities\/([^/]+)$/)
+  const courseMatch = path.match(/^\/courses\/([^/]+)$/)
+  const workbookMatch = path.match(/^\/workbooks\/([^/]+)$/)
+  const bundleMatch = path.match(/^\/worksheet-bundles\/([^/]+)$/)
 
   let Page = null
   const protectedPage = (content, roles = []) => {
@@ -112,9 +134,41 @@ function AppShell() {
   } else if (path === '/admin/worksheets') {
     Page = protectedPage(<AdminWorksheets />, ['admin'])
   } else if (activityMatch) {
-    Page = <ActivityDetails activityId={decodeURIComponent(activityMatch[1])} />
+    Page = protectedPage(<ConnectedLms type="quizzes" id={decodeURIComponent(activityMatch[1])} />)
   } else if (path === '/activities') {
-    Page = <Activities />
+    Page = protectedPage(<ConnectedLms type="quizzes" />)
+  } else if (courseMatch) {
+    Page = protectedPage(<ConnectedLms type="courses" id={decodeURIComponent(courseMatch[1])} />)
+  } else if (path === '/courses') {
+    Page = protectedPage(<ConnectedLms type="courses" />)
+  } else if (workbookMatch) {
+    Page = protectedPage(<ConnectedLms type="workbooks" id={decodeURIComponent(workbookMatch[1])} />)
+  } else if (path === '/workbooks') {
+    Page = protectedPage(<ConnectedLms type="workbooks" />)
+  } else if (bundleMatch) {
+    Page = protectedPage(<ConnectedLms type="bundles" id={decodeURIComponent(bundleMatch[1])} />)
+  } else if (path === '/worksheet-bundles') {
+    Page = protectedPage(<ConnectedLms type="bundles" />)
+  } else if (path === '/search') {
+    Page = protectedPage(<GlobalSearch />)
+  } else if (path === '/messages') {
+    Page = protectedPage(<ConnectedLms type="messages" />)
+  } else if (path === '/notifications') {
+    Page = protectedPage(<ConnectedLms type="notifications" />)
+  } else if (path === '/calendar') {
+    Page = protectedPage(<ConnectedLms type="calendar" />)
+  } else if (path === '/certificates') {
+    Page = protectedPage(<ConnectedLms type="certificates" />)
+  } else if (['/bookmarks','/wishlist','/favorites'].includes(path)) {
+    Page = protectedPage(<ConnectedLms type="saved" savedKind={path === '/favorites' ? 'favorite' : path === '/wishlist' ? 'wishlist' : 'bookmark'} />)
+  } else if (path === '/users') {
+    Page = protectedPage(<ConnectedLms type="admin" />, ['admin'])
+  } else if (path === '/classes') {
+    Page = protectedPage(<ConnectedLms type="classes" />, ['admin','teacher'])
+  } else if (path === '/subjects') {
+    Page = protectedPage(<ConnectedLms type="subjects" />)
+  } else if (path === '/billing') {
+    Page = protectedPage(<ConnectedLms type="billing" />)
   } else if (path === '/pricing') {
     Page = <Pricing />
   } else if (path === '/help') {
@@ -147,7 +201,8 @@ function AppShell() {
         onSectionSelect={handleSectionSelect}
         onLogoClick={goHome}
       />
-      {Page}
+      {companionPageForPath(path) && (user || !['worksheets', 'worksheet', 'dashboard'].includes(companionPageForPath(path))) && <LearningCompanion page={companionPageForPath(path)} />}
+      {companionPageForPath(path) ? <CharacterWorld page={companionPageForPath(path)}>{Page}</CharacterWorld> : Page}
       <Footer />
     </>
   )

@@ -7,6 +7,34 @@ import './pages.css'
 
 const PAGE_SIZE = 8
 
+function ActivityKeyboardVisual() {
+  const move = (event) => {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const x = (event.clientX - bounds.left) / bounds.width - .5
+    const y = (event.clientY - bounds.top) / bounds.height - .5
+    event.currentTarget.style.setProperty('--activity-rx', `${-y * 6}deg`)
+    event.currentTarget.style.setProperty('--activity-ry', `${x * 9}deg`)
+    event.currentTarget.style.setProperty('--activity-x', `${x * 12}px`)
+    event.currentTarget.style.setProperty('--activity-y', `${y * 10}px`)
+  }
+
+  const reset = (event) => {
+    event.currentTarget.style.setProperty('--activity-rx', '0deg')
+    event.currentTarget.style.setProperty('--activity-ry', '0deg')
+    event.currentTarget.style.setProperty('--activity-x', '0px')
+    event.currentTarget.style.setProperty('--activity-y', '0px')
+  }
+
+  return (
+    <div className="activity-keyboard-stage" onPointerMove={move} onPointerLeave={reset} aria-hidden="true">
+      <span className="activity-orb activity-orb-one" />
+      <span className="activity-orb activity-orb-two" />
+      <span className="activity-spark spark-one">+</span>
+      <span className="activity-spark spark-two">÷</span>
+    </div>
+  )
+}
+
 export default function Activities() {
   const { navigate } = useRouter()
   const { favorites, toggleFavorite } = useApp()
@@ -41,8 +69,8 @@ export default function Activities() {
 
   return (
     <>
-      <PageHero eyebrow="Quick & playful" title="Activities" subtitle="Short interactive games and puzzles that turn practice time into play time — perfect for a quick brain break." />
-      <div className="page-section tight">
+      <div className="activity-world-hero"><div className="wrap activity-world-grid"><div><span className="eyebrow">Quick & playful</span><h1>Choose your next adventure</h1><p>Games, puzzles and quick challenges.</p></div><ActivityKeyboardVisual /></div></div>
+      <div className="page-section tight activity-explorer" data-companion-section="activity-library">
         <div className="wrap">
           <div className="filters-toolbar">
             <div className="search-lg">

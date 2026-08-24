@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function Reveal({ children, as: Tag = 'div', className = '', delay = 0, variant = 'up', stagger = false, style }) {
+export default function Reveal({ children, as: Tag = 'div', className = '', delay = 0, variant = 'up', stagger = false, style, ...rest }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
 
@@ -28,6 +28,7 @@ export default function Reveal({ children, as: Tag = 'div', className = '', dela
       ref={ref}
       className={`reveal${variantClass}${visible ? ' in' : ''}${stagger ? ' stagger' : ''}${className ? ' ' + className : ''}`}
       style={mergedStyle}
+      {...rest}
     >
       {children}
     </Tag>

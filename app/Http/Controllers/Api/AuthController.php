@@ -81,6 +81,10 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => ['The supplied credentials are invalid.']]);
         }
 
+        if ($user->status === 'suspended') {
+            abort(403, 'This account is suspended.');
+        }
+
         return response()->json($this->tokenPayload($user));
     }
 

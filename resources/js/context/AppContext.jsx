@@ -53,6 +53,13 @@ export function AppProvider({ children }) {
     return data
   }, [])
 
+  const googleLogin = useCallback(async (credential) => {
+    const { data } = await api.post('/auth/google', { credential })
+    saveToken(data.token, true)
+    setUser(data.user)
+    return data
+  }, [])
+
   const logout = useCallback(async () => {
     try { await api.post('/auth/logout') } finally { clearToken(); setUser(null) }
   }, [])
@@ -64,11 +71,11 @@ export function AppProvider({ children }) {
   }, [])
 
   const value = useMemo(() => ({
-    user, authLoading, login, register, logout, refreshUser, updateProfile, api,
+    user, authLoading, login, register, googleLogin, logout, refreshUser, updateProfile, api,
     favorites, toggleFavorite,
     recentlyViewed, addRecentlyViewed,
     recentlyDownloaded, addRecentlyDownloaded,
-  }), [user, authLoading, login, register, logout, refreshUser, updateProfile, favorites, recentlyViewed, recentlyDownloaded, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded])
+  }), [user, authLoading, login, register, googleLogin, logout, refreshUser, updateProfile, favorites, recentlyViewed, recentlyDownloaded, toggleFavorite, addRecentlyViewed, addRecentlyDownloaded])
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>
 }

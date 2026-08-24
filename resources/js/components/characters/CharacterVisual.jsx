@@ -1,0 +1,4 @@
+import './CharacterVisual.css'
+export const CHARACTER_BY_SECTION=Object.freeze({dashboard:'fox',home:'fox',learning:'fox',courses:'fox',worksheets:'panda',worksheet:'panda',activities:'dinosaur',activity:'dinosaur',help:'robot',guidance:'robot',progress:'astronaut',achievements:'astronaut',streaks:'astronaut',milestones:'astronaut'})
+export const characterForSection=(section)=>CHARACTER_BY_SECTION[section]||'fox'
+export default function CharacterVisual({character,section,size='lg',className=''}){const type=character||characterForSection(section);return <div className={`character-visual character-${type} motion-${type} size-${size} ${className}`} aria-hidden="true"><span className="character-orbit orbit-a"/><span className="character-orbit orbit-b"/><img src={`/assets/characters/${type}.png`} alt="" loading={size==='hero'?'eager':'lazy'} decoding="async"/><span className="character-shadow"/></div>}

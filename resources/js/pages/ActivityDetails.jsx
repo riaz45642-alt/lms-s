@@ -64,7 +64,7 @@ export default function ActivityDetails({ activityId }) {
           </div>
         </div>
 
-        <div className="sec-head related-heading" id="how-it-works"><h2>How it works</h2></div>
+        <div className="sec-head related-heading" id="how-it-works" data-companion-section="activity-steps"><h2>How it works</h2></div>
         <ul className="chapter-list numbered">
           {activity.steps.map((s, i) => (
             <li key={s}><span><span className="num">{String(i + 1).padStart(2, '0')}</span>{s}</span></li>
