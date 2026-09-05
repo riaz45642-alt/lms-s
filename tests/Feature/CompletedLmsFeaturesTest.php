@@ -62,4 +62,66 @@ class CompletedLmsFeaturesTest extends TestCase
         Sanctum::actingAs($teacher);$this->patchJson("/api/admin/users/$student->id",['status'=>'suspended'])->assertForbidden();
         Sanctum::actingAs($admin);$this->patchJson("/api/admin/users/$student->id",['status'=>'suspended'])->assertOk()->assertJsonPath('status','suspended');
     }
+
+    public function test_admin_user_listing_combines_server_side_search_role_and_status_filters(): void
+    {
+        $admin=User::factory()->create(['role'=>'admin']);
+        User::factory()->create(['name'=>'Matching Learner','email'=>'matching@example.com','role'=>'student','status'=>'suspended']);
+        User::factory()->create(['name'=>'Matching Teacher','email'=>'teacher-match@example.com','role'=>'teacher','status'=>'suspended']);
+        User::factory()->create(['name'=>'Active Learner','email'=>'active@example.com','role'=>'student','status'=>'active']);
+
+        Sanctum::actingAs($admin);
+        $this->getJson('/api/admin/users?q=Matching&role=student&status=suspended')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.email', 'matching@example.com');
+    }
+
+    public function test_public_catalog_and_pricing_use_published_database_records(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        DB::table('worksheets')->insert([
+            'created_by' => $admin->id, 'title' => 'Live Fractions', 'subject' => 'Maths',
+            'grade_level' => 'Year 4', 'file_path' => 'worksheets/live.pdf',
+            'original_filename' => 'live.pdf', 'mime_type' => 'application/pdf', 'file_size' => 10,
+            'is_published' => true, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('worksheets')->insert([
+            'created_by' => $admin->id, 'title' => 'Private Draft', 'subject' => 'Maths',
+            'grade_level' => 'Year 4', 'file_path' => 'worksheets/draft.pdf',
+            'original_filename' => 'draft.pdf', 'mime_type' => 'application/pdf', 'file_size' => 10,
+            'is_published' => false, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        $this->getJson('/api/catalog/home')->assertOk()
+            ->assertJsonPath('worksheets.0.title', 'Live Fractions')
+            ->assertJsonMissing(['title' => 'Private Draft']);
+        $this->getJson('/api/billing/plans')->assertOk()->assertJsonStructure([['id', 'name', 'price_cents', 'currency', 'interval']]);
+    }
+
+    public function test_saved_content_returns_current_database_metadata(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $student = User::factory()->create(['role' => 'student']);
+        StudentProfile::create(['user_id' => $student->id]);
+        $course = DB::table('courses')->insertGetId([
+            'created_by' => $admin->id, 'title' => 'Database Course', 'slug' => 'database-course',
+            'is_published' => true, 'difficulty' => 'beginner', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('user_content_items')->insert([
+            'user_id' => $student->id, 'kind' => 'bookmark', 'content_type' => 'course',
+            'content_id' => $course, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        Sanctum::actingAs($student);
+        $this->getJson('/api/content-items?kind=bookmark')->assertOk()
+            ->assertJsonPath('0.title', 'Database Course');
+    }
+
+    public function test_newsletter_form_persists_a_real_subscription(): void
+    {
+        $this->postJson('/api/newsletter/subscriptions', ['email' => 'Learner@Example.test'])
+            ->assertCreated()->assertJsonPath('message', 'You are subscribed to the EduSphere newsletter.');
+        $this->assertDatabaseHas('newsletter_subscribers', ['email' => 'learner@example.test']);
+    }
 }

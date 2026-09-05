@@ -19,6 +19,32 @@ use Illuminate\Validation\ValidationException;
 
 class LmsFeatureController extends Controller
 {
+    public function homeCatalog()
+    {
+        return [
+            'worksheets' => DB::table('worksheets')->where('is_published', true)
+                ->latest()->limit(8)->get(['id', 'title', 'subject', 'grade_level', 'mime_type']),
+            'bundles' => DB::table('worksheet_bundles')->where('is_published', true)
+                ->latest()->limit(4)->get(['id', 'title', 'description']),
+        ];
+    }
+
+    public function subscribeNewsletter(Request $request)
+    {
+        $email = $request->validate(['email' => ['required', 'email:rfc', 'max:255']])['email'];
+        DB::table('newsletter_subscribers')->updateOrInsert(
+            ['email' => Str::lower($email)],
+            ['subscribed_at' => now(), 'created_at' => now(), 'updated_at' => now()]
+        );
+
+        return response()->json(['message' => 'You are subscribed to the EduSphere newsletter.'], 201);
+    }
+
+    public function publicEvents()
+    {
+        return DB::table('calendar_events')->whereNull('class_id')->where('is_published', true)->where('status', 'scheduled')->orderBy('starts_at')->limit(8)->get();
+    }
+
     public function courses(Request $request)
     {
         $query = DB::table('courses')->leftJoin('subjects', 'subjects.id', '=', 'courses.subject_id')
@@ -111,7 +137,16 @@ class LmsFeatureController extends Controller
     public function contentItems(Request $request)
     {
         $kind=$request->validate(['kind'=>['required',Rule::in(['favorite','bookmark','wishlist'])]])['kind'];
-        return DB::table('user_content_items')->where(['user_id'=>$request->user()->id,'kind'=>$kind])->latest()->get();
+        $items=DB::table('user_content_items')->where(['user_id'=>$request->user()->id,'kind'=>$kind])->latest()->get();
+        $tables=['course'=>'courses','lesson'=>'lessons','worksheet'=>'worksheets','workbook'=>'workbooks','quiz'=>'quizzes','bundle'=>'worksheet_bundles'];
+        return $items->map(function($item)use($tables){
+            $table=$tables[$item->content_type]??null;
+            $content=$table?DB::table($table)->find($item->content_id):null;
+            if(!$content)return null;
+            $item->title=$content->title??$content->name??ucfirst($item->content_type);
+            $item->description=$content->description??$content->summary??null;
+            return $item;
+        })->filter()->values();
     }
     public function toggleContentItem(Request $request)
     {
@@ -156,17 +191,17 @@ class LmsFeatureController extends Controller
     public function readNotification(Request $request,string $id){$n=$request->user()->notifications()->findOrFail($id);$n->markAsRead();return $n;}
     public function certificates(Request $request){return DB::table('certificates')->join('courses','courses.id','=','certificates.course_id')->where('user_id',$request->user()->id)->latest('issued_at')->get(['certificates.*','courses.title as course_title']);}
 
-    public function users(Request $request){$this->admin($request);return User::with('roles:id,name,slug')->when($request->q,fn($q,$v)=>$q->where(fn($s)=>$s->where('name','like','%'.$v.'%')->orWhere('email','like','%'.$v.'%')))->when($request->role,fn($q,$v)=>$q->where('role',$v))->paginate(20);}
+    public function users(Request $request){$this->admin($request);$filters=$request->validate(['q'=>['nullable','string','max:255'],'role'=>['nullable',Rule::in(['admin','teacher','parent','student'])],'status'=>['nullable',Rule::in(['active','suspended'])],'page'=>['nullable','integer','min:1']]);return User::with(['roles:id,name,slug','parentProfile:id,user_id,phone','teacherProfile:id,user_id,specialization','studentProfile.schoolClass:id,name,code,grade_level'])->when($filters['q']??null,fn($q,$v)=>$q->where(fn($s)=>$s->where('name','like','%'.$v.'%')->orWhere('email','like','%'.$v.'%')))->when($filters['role']??null,fn($q,$v)=>$q->where('role',$v))->when($filters['status']??null,fn($q,$v)=>$q->where('status',$v))->latest()->paginate(20);}
     public function updateUser(Request $request, User $user){$this->admin($request);abort_if($user->is($request->user())&&($request->input('status')==='suspended'||($request->filled('role')&&$request->role!=='admin')),422,'You cannot remove your own active admin access.');$d=$request->validate(['role'=>['sometimes',Rule::in(['admin','teacher','parent','student'])],'status'=>['sometimes',Rule::in(['active','suspended'])]]);DB::transaction(function()use($request,$user,$d){$user->update($d);if(isset($d['role'])){$user->roles()->sync([]);$user->assignRole($d['role'],$request->user());match($d['role']){'teacher'=>TeacherProfile::firstOrCreate(['user_id'=>$user->id]),'parent'=>\App\Models\ParentProfile::firstOrCreate(['user_id'=>$user->id]),'student'=>StudentProfile::firstOrCreate(['user_id'=>$user->id]),default=>null};}});$user->tokens()->delete();return $user->fresh('roles');}
 
     public function classes(Request $request){abort_unless($request->user()->hasRole('admin','teacher'),403);$q=SchoolClass::with(['homeroomTeacher.user:id,name','students.user:id,name','subjects:id,name']);if($request->user()->hasRole('teacher')){$tid=$request->user()->teacherProfile?->id;$q->where(fn($x)=>$x->where('homeroom_teacher_id',$tid)->orWhereHas('teachers',fn($t)=>$t->whereKey($tid)));}return $q->paginate(20);}
     public function storeClass(Request $request){abort_unless($request->user()->hasRole('admin'),403);$d=$request->validate(['name'=>['required','string','max:100'],'code'=>['required','string','max:50','unique:classes'],'grade_level'=>['required','string','max:50'],'academic_year'=>['required','string','max:20'],'homeroom_teacher_id'=>['nullable','exists:teacher_profiles,id']]);return response()->json(SchoolClass::create($d),201);}
     public function subjects(Request $request){return Subject::orderBy('name')->get();}
-    public function storeSubject(Request $request){$this->admin($request);$d=$request->validate(['name'=>['required','string','max:100'],'code'=>['required','string','max:50','unique:subjects'],'description'=>['nullable','string','max:2000']]);return response()->json(Subject::create($d),201);}
+    public function storeSubject(Request $request){$this->admin($request);$d=$request->validate(['name'=>['required','string','max:100'],'code'=>['required','string','max:50','unique:subjects'],'description'=>['nullable','string','max:2000']]);$subject=Subject::create($d);if(Schema::hasTable('admin_audit_logs'))DB::table('admin_audit_logs')->insert(['actor_id'=>$request->user()->id,'action'=>'subject.created','target_type'=>'subject','target_id'=>$subject->id,'target_label'=>$subject->name,'ip_address'=>$request->ip(),'created_at'=>now(),'updated_at'=>now()]);return response()->json($subject,201);}
     public function assignStudent(Request $request, SchoolClass $class){$this->admin($request);$d=$request->validate(['student_id'=>['required','exists:student_profiles,id']]);StudentProfile::whereKey($d['student_id'])->update(['class_id'=>$class->id]);return response()->noContent();}
 
     public function billingPlans(){return DB::table('billing_plans')->where('is_active',true)->orderBy('price_cents')->get();}
-    public function billingInterest(Request $request){$d=$request->validate(['billing_plan_id'=>['required','exists:billing_plans,id']]);$id=DB::table('billing_interests')->insertGetId($d+['user_id'=>$request->user()->id,'status'=>'pending_provider','created_at'=>now(),'updated_at'=>now()]);return response()->json(['id'=>$id,'status'=>'pending_provider','message'=>'Plan selected. Payment processing is not connected yet.'],201);}
+    public function billingInterest(Request $request){$d=$request->validate(['billing_plan_id'=>['required','exists:billing_plans,id']]);$id=DB::table('billing_interests')->insertGetId($d+['user_id'=>$request->user()->id,'status'=>'pending','created_at'=>now(),'updated_at'=>now()]);$plan=DB::table('billing_plans')->find($d['billing_plan_id']);app(\App\Services\AdminEventService::class)->notifyAdmins('subscription.requested','New subscription request',"{$request->user()->name} requested {$plan->name}.",'billing_interest',$id);return response()->json(['id'=>$id,'status'=>'pending','message'=>'Your subscription request has been sent to an administrator.'],201);}
 
     public function google(Request $request)
     {

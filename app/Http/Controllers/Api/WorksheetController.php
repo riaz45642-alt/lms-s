@@ -8,6 +8,9 @@ use App\Http\Requests\UpdateWorksheetRequest;
 use App\Models\Worksheet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use App\Services\AdminEventService;
 
 class WorksheetController extends Controller
 {
@@ -26,8 +29,13 @@ class WorksheetController extends Controller
         }
 
         return $query
+            ->when($request->string('q')->toString(), fn ($q, $term) => $q->where(fn ($s) => $s->where('title', 'like', "%$term%")->orWhere('description', 'like', "%$term%")->orWhere('subject', 'like', "%$term%")))
             ->when($request->string('subject')->toString(), fn ($q, $subject) => $q->where('subject', $subject))
             ->when($request->string('grade_level')->toString(), fn ($q, $grade) => $q->where('grade_level', $grade))
+            ->when($request->string('status')->toString(), fn ($q, $status) => $q->where('is_published', $status === 'published'))
+            ->when($request->integer('creator_id'), fn ($q, $creator) => $q->where('created_by', $creator))
+            ->when($request->date('date_from'), fn ($q, $date) => $q->whereDate('created_at', '>=', $date))
+            ->when($request->date('date_to'), fn ($q, $date) => $q->whereDate('created_at', '<=', $date))
             ->latest()
             ->paginate(20);
     }
@@ -45,6 +53,8 @@ class WorksheetController extends Controller
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
         ]);
+        $this->audit($request, 'worksheet.created', $worksheet);
+        app(AdminEventService::class)->notifyAdmins('worksheet.uploaded', 'Worksheet uploaded', "{$worksheet->title} was uploaded.", 'worksheet', $worksheet->id);
 
         return response()->json($worksheet->load('creator'), 201);
     }
@@ -70,6 +80,7 @@ class WorksheetController extends Controller
         abort_if($worksheet->assignments()->exists(), 409, 'Assigned worksheets cannot be deleted.');
 
         Storage::delete($worksheet->file_path);
+        $this->audit($request, 'worksheet.deleted', $worksheet);
         $worksheet->delete();
 
         return response()->noContent();
@@ -105,6 +116,15 @@ class WorksheetController extends Controller
             Storage::delete($oldPath);
         }
 
+        $action = array_key_exists('is_published', $data) ? ($data['is_published'] ? 'worksheet.published' : 'worksheet.unpublished') : 'worksheet.updated';
+        $this->audit($request, $action, $worksheet);
+
         return $worksheet->fresh()->load('creator');
+    }
+
+    private function audit(Request $request, string $action, Worksheet $worksheet): void
+    {
+        if (! Schema::hasTable('admin_audit_logs')) return;
+        DB::table('admin_audit_logs')->insert(['actor_id' => $request->user()->id, 'action' => $action, 'target_type' => 'worksheet', 'target_id' => $worksheet->id, 'target_label' => $worksheet->title, 'ip_address' => $request->ip(), 'created_at' => now(), 'updated_at' => now()]);
     }
 }

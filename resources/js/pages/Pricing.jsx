@@ -1,60 +1,61 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '../router/Router'
-import { pricingPlans, pricingFaqs } from '../data/pricingData'
+import { pricingFaqs } from '../data/pricingData'
 import { PageHero } from '../components/ui/UI'
 import Reveal from '../components/Reveal'
 import { useApp } from '../context/AppContext'
+import api, { errorMessage } from '../services/api'
 import './pages.css'
 
 export default function Pricing() {
   const { navigate } = useRouter()
   const { user } = useApp()
-  const [annual, setAnnual] = useState(true)
   const [openFaq, setOpenFaq] = useState(0)
+  const [plans, setPlans] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    api.get('/billing/plans')
+      .then(({ data }) => { if (active) setPlans(data) })
+      .catch((requestError) => { if (active) setError(errorMessage(requestError)) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
 
   return (
     <>
       <PageHero eyebrow="Simple, transparent pricing" title="Plans for every kind of learner" subtitle="Full access to worksheets, workbooks and interactive courses. Cancel anytime." />
       <div className="page-section tight">
         <div className="wrap">
-          <div className="billing-toggle">
-            <span className={!annual ? 'on' : ''}>Monthly</span>
-            <button
-              type="button"
-              className={`billing-switch${annual ? ' annual' : ''}`}
-              aria-pressed={annual}
-              aria-label="Toggle annual billing"
-              onClick={() => setAnnual((a) => !a)}
-            >
-              <span className="knob" />
-            </button>
-            <span className={annual ? 'on' : ''}>Annual</span>
-            {annual && <span className="save-pill">Save up to 35%</span>}
-          </div>
+          {loading && <p role="status">Loading current plans...</p>}
+          {error && <div className="portal-error" role="alert">{error}</div>}
 
           <Reveal className="plans-grid" stagger>
-            {pricingPlans.map((plan) => {
-              const price = annual ? plan.annual : plan.monthly
+            {plans.map((plan, index) => {
+              const highlight = index === 1
+              const features = typeof plan.features === 'string' ? JSON.parse(plan.features) : (plan.features || [])
               return (
-                <div className={`plan-card${plan.highlight ? ' highlight' : ''}`} key={plan.key}>
-                  {plan.highlight && <span className="plan-ribbon">Most popular</span>}
-                  <div className="plan-em">{plan.em}</div>
-                  <h3>{plan.title}</h3>
-                  <div className="plan-tagline">{plan.tagline}</div>
+                <div className={`plan-card${highlight ? ' highlight' : ''}`} key={plan.id}>
+                  {highlight && <span className="plan-ribbon">Most popular</span>}
+                  <div className="plan-em">{['🌱', '🚀', '🏡'][index % 3]}</div>
+                  <h3>{plan.name}</h3>
+                  <div className="plan-tagline">{plan.description}</div>
                   <div className="plan-price">
-                    <span className="amt">${price.toFixed(2)}</span>
-                    <span className="per">/ month, billed {annual ? 'annually' : 'monthly'}</span>
+                    <span className="amt">{new Intl.NumberFormat(undefined, { style: 'currency', currency: plan.currency }).format(plan.price_cents / 100)}</span>
+                    <span className="per">/ {plan.interval}</span>
                   </div>
                   <ul className="plan-features">
-                    {plan.features.map((f) => (
+                    {features.map((f) => (
                       <li key={f}><span className="tick">✓</span>{f}</li>
                     ))}
                   </ul>
                   <button
-                    className={`btn ${plan.highlight ? 'btn-primary' : 'btn-ghost'}`}
+                    className={`btn ${highlight ? 'btn-primary' : 'btn-ghost'}`}
                     onClick={() => navigate(user ? '/billing' : '/signup')}
                   >
-                    Choose {plan.title}
+                    Choose {plan.name}
                   </button>
                 </div>
               )

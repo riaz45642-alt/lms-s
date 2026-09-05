@@ -6,9 +6,9 @@ const AppCtx = createContext(null)
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(Boolean(storedToken()))
-  const [favorites, setFavorites] = useState(['Adding 2 Worksheet', 'Parts of a Plant'])
-  const [recentlyViewed, setRecentlyViewed] = useState(['Letter Tracing A–Z', 'Continents & Oceans'])
-  const [recentlyDownloaded, setRecentlyDownloaded] = useState(['Sight Words Practice'])
+  const [favorites, setFavorites] = useState([])
+  const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [recentlyDownloaded, setRecentlyDownloaded] = useState([])
 
   const toggleFavorite = useCallback((title) => {
     setFavorites((f) => (f.includes(title) ? f.filter((t) => t !== title) : [title, ...f]))
@@ -38,6 +38,15 @@ export function AppProvider({ children }) {
   }, [])
 
   useEffect(() => { refreshUser() }, [refreshUser])
+
+  useEffect(() => {
+    const onUnauthorized = () => {
+      setUser(null)
+      setAuthLoading(false)
+    }
+    window.addEventListener('lms:unauthorized', onUnauthorized)
+    return () => window.removeEventListener('lms:unauthorized', onUnauthorized)
+  }, [])
 
   const login = useCallback(async (credentials, remember = false) => {
     const { data } = await api.post('/auth/login', credentials)

@@ -29,7 +29,6 @@ import ActivityDetails from './pages/ActivityDetails'
 import { NotFound } from './pages/NotFound'
 import PortalDashboard from './pages/PortalDashboard'
 import AccountProfile from './pages/AccountProfile'
-import AdminWorksheets from './pages/AdminWorksheets'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerifyEmail from './pages/VerifyEmail'
@@ -39,15 +38,20 @@ import LearningCompanion from './components/characters/LearningCompanion'
 import CharacterWorld from './components/characters/CharacterWorld'
 import ConnectedLms from './pages/ConnectedLms'
 import GlobalSearch from './pages/GlobalSearch'
+import AcademicManagement from './pages/AcademicManagement'
+import AdminPanel from './pages/AdminPanel'
 
 function companionPageForPath(path) {
+  // The administration workspace intentionally uses a clean, professional
+  // interface without the learner-facing character companion or themed world.
+  if (path === '/admin' || path.startsWith('/admin/')) return null
   if (path === '/') return 'home'
   if (path === '/help') return 'help'
   if (path === '/activities') return 'activities'
   if (/^\/activities\//.test(path)) return 'activity'
   if (path === '/worksheets') return 'worksheets'
   if (/^\/worksheets\//.test(path)) return 'worksheet'
-  if (['/dashboard', '/admin', '/teacher', '/parent', '/student'].includes(path)) return 'dashboard'
+  if (['/dashboard', '/teacher', '/parent', '/student'].includes(path)) return 'dashboard'
   if (path === '/courses') return 'courses'
   if (/^\/learning\//.test(path)) return 'learning'
   if (/progress|achievement|certificate/.test(path)) return 'progress'
@@ -113,6 +117,7 @@ function AppShell() {
   const courseMatch = path.match(/^\/courses\/([^/]+)$/)
   const workbookMatch = path.match(/^\/workbooks\/([^/]+)$/)
   const bundleMatch = path.match(/^\/worksheet-bundles\/([^/]+)$/)
+  const adminMatch = path.match(/^\/admin(?:\/([^/]+))?$/)
 
   let Page = null
   const protectedPage = (content, roles = []) => {
@@ -127,12 +132,14 @@ function AppShell() {
     Page = protectedPage(<WorksheetDetails worksheetId={decodeURIComponent(worksheetMatch[1])} />)
   } else if (path === '/worksheets') {
     Page = protectedPage(<Worksheets />)
-  } else if (['/dashboard', '/admin', '/teacher', '/parent', '/student'].includes(path)) {
+  } else if (['/dashboard', '/teacher', '/parent', '/student'].includes(path)) {
     Page = protectedPage(<PortalDashboard />)
   } else if (path === '/profile') {
     Page = protectedPage(<AccountProfile />)
-  } else if (path === '/admin/worksheets') {
-    Page = protectedPage(<AdminWorksheets />, ['admin'])
+  } else if (adminMatch) {
+    const adminSections = ['dashboard','users','roles','subscriptions','worksheets','subjects','events','notifications','reports','activity','system']
+    const adminSection = adminMatch[1] || 'dashboard'
+    Page = adminSections.includes(adminSection) ? protectedPage(<AdminPanel initialSection={adminSection} />, ['admin']) : <NotFound />
   } else if (activityMatch) {
     Page = protectedPage(<ConnectedLms type="quizzes" id={decodeURIComponent(activityMatch[1])} />)
   } else if (path === '/activities') {
@@ -162,11 +169,11 @@ function AppShell() {
   } else if (['/bookmarks','/wishlist','/favorites'].includes(path)) {
     Page = protectedPage(<ConnectedLms type="saved" savedKind={path === '/favorites' ? 'favorite' : path === '/wishlist' ? 'wishlist' : 'bookmark'} />)
   } else if (path === '/users') {
-    Page = protectedPage(<ConnectedLms type="admin" />, ['admin'])
+    Page = protectedPage(<AdminPanel initialSection="users" />, ['admin'])
   } else if (path === '/classes') {
-    Page = protectedPage(<ConnectedLms type="classes" />, ['admin','teacher'])
+    Page = protectedPage(<AcademicManagement section="classes" />, ['admin','teacher'])
   } else if (path === '/subjects') {
-    Page = protectedPage(<ConnectedLms type="subjects" />)
+    Page = protectedPage(<AcademicManagement section="subjects" />)
   } else if (path === '/billing') {
     Page = protectedPage(<ConnectedLms type="billing" />)
   } else if (path === '/pricing') {

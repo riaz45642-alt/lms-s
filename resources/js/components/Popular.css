@@ -1,6 +1,6 @@
 .popular{padding:60px 0}
 .pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px}
-.pcard{border-radius:var(--radius);padding:20px;color:#fff;min-height:160px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .22s ease,box-shadow .22s ease;opacity:0;transform:translateY(20px)}
+.pcard{width:100%;border:0;border-radius:var(--radius);padding:20px;color:#fff;text-align:left;font:inherit;cursor:pointer;min-height:160px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .22s ease,box-shadow .22s ease;opacity:0;transform:translateY(20px)}
 .reveal.in .pcard{animation:staggerIn .55s cubic-bezier(.2,.7,.2,1) forwards}
 .reveal.in .pcard:nth-child(1){animation-delay:.02s}
 .reveal.in .pcard:nth-child(2){animation-delay:.1s}

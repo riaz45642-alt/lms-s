@@ -1,13 +1,27 @@
-import { useState } from 'react'
-import { titles, thumbs, years, subjects } from '../data/worksheetsData'
+import { useEffect, useMemo, useState } from 'react'
+import api, { errorMessage } from '../services/api'
+import { useRouter } from '../router/Router'
 import './Featured.css'
 
 export default function Featured() {
-  const [curYear, setCurYear] = useState('Early Years')
-  const [curSubj, setCurSubj] = useState('Maths')
+  const { navigate } = useRouter()
+  const [items, setItems] = useState([])
+  const [curYear, setCurYear] = useState('All')
+  const [curSubj, setCurSubj] = useState('All')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  const list = titles[curSubj] || []
-  const emoji = thumbs[curSubj]
+  useEffect(() => {
+    let active = true
+    api.get('/catalog/home').then(({ data }) => { if (active) setItems(data.worksheets || []) })
+      .catch((requestError) => { if (active) setError(errorMessage(requestError)) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [])
+
+  const years = useMemo(() => ['All', ...new Set(items.map((item) => item.grade_level).filter(Boolean))], [items])
+  const subjects = useMemo(() => ['All', ...new Set(items.map((item) => item.subject).filter(Boolean))], [items])
+  const list = items.filter((item) => (curYear === 'All' || item.grade_level === curYear) && (curSubj === 'All' || item.subject === curSubj))
 
   return (
     <section className="featured" id="featured">
@@ -16,7 +30,7 @@ export default function Featured() {
           <h2>Featured worksheets</h2>
           <p>Easily download, print, score and track progress with our curated selection.</p>
         </div>
-        <a className="btn btn-primary free-cta" href="#">Get free access</a>
+        <button className="btn btn-primary free-cta" onClick={() => navigate('/worksheets')}>Browse worksheets</button>
 
         <div className="year-tabs">
           {years.map((y) => (
@@ -33,32 +47,35 @@ export default function Featured() {
         <div className="feat-layout">
           <div className="subj-list">
             {subjects.map((s) => (
-              <div
+              <button
                 key={s}
                 className={`subj${curSubj === s ? ' active' : ''}`}
                 onClick={() => setCurSubj(s)}
               >
                 {s} <span className="chev">›</span>
-              </div>
+              </button>
             ))}
           </div>
 
           <div className="cards">
-            {list.map(([t, b]) => (
-              <div className="wcard" key={t}>
-                <div className="wthumb" style={{ background: b === 'free' ? '#F1ECFE' : '#FFE9D8' }}>
+            {loading && <p role="status">Loading featured worksheets...</p>}
+            {error && <p role="alert">{error}</p>}
+            {!loading && !error && !list.length && <p>No published worksheets are available for this selection yet.</p>}
+            {list.map((item) => (
+              <button className="wcard" key={item.id} onClick={() => navigate(`/worksheets/${item.id}`)}>
+                <div className="wthumb" style={{ background: '#F1ECFE' }}>
                   <span className="wbrand">EduSphere</span>
-                  <span className={`badge ${b === 'free' ? 'free' : 'prem'}`}>{b === 'free' ? 'Free' : 'Premium'}</span>
-                  <span style={{ fontSize: '42px' }}>{emoji}</span>
+                  <span className="badge free">Available</span>
+                  <span style={{ fontSize: '42px' }}>📄</span>
                 </div>
                 <div className="wbody">
-                  <h4>{t}</h4>
+                  <h4>{item.title}</h4>
                   <div className="wmeta">
-                    <span className="lvl">{curYear} · {curSubj}</span>
+                    <span className="lvl">{item.grade_level} · {item.subject}</span>
                     <span className="pdf"><i>PDF</i></span>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

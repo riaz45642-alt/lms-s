@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use App\Services\AdminEventService;
 
 class AuthController extends Controller
 {
@@ -64,6 +65,7 @@ class AuthController extends Controller
         });
 
         event(new Registered($user));
+        app(AdminEventService::class)->notifyAdmins('user.registered', 'New user registration', "{$user->name} registered as {$user->role}.", 'user', $user->id);
 
         return response()->json($this->tokenPayload($user), 201);
     }

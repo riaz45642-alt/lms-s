@@ -16,19 +16,19 @@ class LmsDemoSeeder extends Seeder
         DB::transaction(function () {
             $adminUser = User::updateOrCreate(
                 ['email' => 'admin@example.com'],
-                ['name' => 'Demo Admin', 'password' => 'password', 'role' => 'admin']
+                ['name' => 'Demo Admin', 'password' => 'password', 'role' => 'admin', 'email_verified_at' => now()]
             );
             $teacherUser = User::updateOrCreate(
                 ['email' => 'teacher@example.com'],
-                ['name' => 'Demo Teacher', 'password' => 'password', 'role' => 'teacher']
+                ['name' => 'Demo Teacher', 'password' => 'password', 'role' => 'teacher', 'email_verified_at' => now()]
             );
             $parentUser = User::updateOrCreate(
                 ['email' => 'parent@example.com'],
-                ['name' => 'Demo Parent', 'password' => 'password', 'role' => 'parent']
+                ['name' => 'Demo Parent', 'password' => 'password', 'role' => 'parent', 'email_verified_at' => now()]
             );
             $studentUser = User::updateOrCreate(
                 ['email' => 'student@example.com'],
-                ['name' => 'Demo Student', 'password' => 'password', 'role' => 'student']
+                ['name' => 'Demo Student', 'password' => 'password', 'role' => 'student', 'email_verified_at' => now()]
             );
 
             $adminUser->assignRole('admin');
